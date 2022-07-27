@@ -1,3 +1,7 @@
+#' @importFrom generics train
+#' @export
+generics::train
+
 #' train
 #'
 #' @param x kd_model

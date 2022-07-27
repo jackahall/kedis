@@ -11,7 +11,9 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
+    caret,
     dplyr,
+    generics,
     ggplot2,
     magrittr,
     sf,
@@ -19,6 +21,5 @@ Imports:
     terra,
     tidyr
 Depends: 
-    caret,
     keras,
     R (>= 2.10)
