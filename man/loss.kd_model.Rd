@@ -4,7 +4,7 @@
 \alias{loss.kd_model}
 \title{loss}
 \usage{
-\method{loss}{kd_model}(model, data = model$data, full = FALSE, min = TRUE)
+\method{loss}{kd_model}(model, data = model$data, full = FALSE, min = TRUE, ...)
 }
 \arguments{
 \item{model}{a kd_model object}
@@ -14,6 +14,8 @@
 \item{full}{return the full dataframe, default FALSE}
 
 \item{min}{include the minimum (optimum) loss}
+
+\item{...}{additional parameters}
 }
 \value{
 a data.frame

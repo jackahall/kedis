@@ -16,10 +16,11 @@ loss <- function(model, ...){
 #' @param data a kd_data object, defaults to data from model
 #' @param full return the full dataframe, default FALSE
 #' @param min include the minimum (optimum) loss
+#' @param ... additional parameters
 #'
 #' @return a data.frame
 #' @export
-loss.kd_model <- function(model, data = model$data, full = FALSE, min = TRUE){
+loss.kd_model <- function(model, data = model$data, full = FALSE, min = TRUE, ...){
   df <- data.frame(cbind(
     predict(model$predict_model, data$inputs, verbose = 0)[[2]],
     data$outputs[[1]])) %>%
