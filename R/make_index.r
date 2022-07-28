@@ -23,13 +23,11 @@ make_index.kd_data <- function(data, k_out, k_in = NULL, seed = NULL, ...){
 
   if(!is.null(seed)) set.seed(seed)
 
-  y <- data$shapes
-  name = data$names$response_var
+  name <- data$names$response_var
+  y <- data$response %>%
+    dplyr::pull(dplyr::all_of(name))
 
-  outer = caret::createFolds(y %>%
-                               terra::as.data.frame() %>%
-                               dplyr::select(out = dplyr::all_of(name)) %>%
-                               .$out,
+  outer = caret::createFolds(y,
                              k = k_out,
                              list = FALSE)
 
@@ -41,12 +39,9 @@ make_index.kd_data <- function(data, k_out, k_in = NULL, seed = NULL, ...){
                 inner = list())
 
     for(i in 1:k_out){
-      y <- y[which(outer == i),]
+      y_in <- y[which(outer != i)]
 
-      idx$inner[[i]] <- caret::createFolds(y %>%
-                                             terra::as.data.frame() %>%
-                                             dplyr::select(out = dplyr::all_of(name)) %>%
-                                             .$out,
+      idx$inner[[i]] <- caret::createFolds(y_in,
                                            k = k_in,
                                            list = FALSE)
       class(idx$inner[[i]]) <- c("kd_cv_index", "kd_index", "list")

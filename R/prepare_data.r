@@ -100,12 +100,15 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     do.call(rbind, .)
   startendindex <- startendindex[, ] - 1L
 
+
+  length <- full_df %>%
+    dplyr::select(dplyr::all_of(cov_names), ID) %>%
+    dplyr::group_split(ID, .keep = FALSE) %>%
+    sapply(nrow) %>%
+    max
+
   if(is.null(max_length)){
-    max_length <- full_df %>%
-      dplyr::select(dplyr::all_of(cov_names), ID) %>%
-      dplyr::group_split(ID, .keep = FALSE) %>%
-      sapply(nrow) %>%
-      max
+    max_length <- length
   }
 
   data_cov <- full_df %>%
@@ -153,7 +156,7 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
                  response_var = response_var),
     crs = terra::crs(covariates, proj = TRUE, describe = TRUE),
     startendindex = startendindex,
-    max_length = max_length
+    max_length = length
   )
   class(kd_data) <- c("kd_data", "list")
   return(kd_data)
