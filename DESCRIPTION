@@ -11,14 +11,18 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports: 
+    caret,
+    crayon,
     dplyr,
     generics,
     ggplot2,
     keras,
     magrittr,
     sf,
+    stats,
     tensorflow,
     terra,
-    tidyr
+    tidyr,
+    utils
 Depends: 
     R (>= 2.10)

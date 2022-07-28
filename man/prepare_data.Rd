@@ -11,7 +11,13 @@ prepare_data(
   filter_var,
   response_var,
   cov_names = NULL,
-  na.action = FALSE
+  na.action = TRUE,
+  cov_missing = function(.x) {
+     median(.x, na.rm = TRUE)
+ },
+  pop_missing = function(.x) {
+     0
+ }
 )
 }
 \arguments{
@@ -27,7 +33,11 @@ prepare_data(
 
 \item{cov_names}{Covariates to include, defaults to all covariates in covariates argument. Can include x and y}
 
-\item{na.action}{Fill NA cells in rasters}
+\item{na.action}{If true, fills missing data on rasters (using formula cov_missing and pop_missing). If false, only pixels with non-missing values on all layers are included. Default TRUE.}
+
+\item{cov_missing}{formula for missing covariates. performed column-wise}
+
+\item{pop_missing}{formulat for missing population. performed column-wise}
 }
 \value{
 a kd_data object

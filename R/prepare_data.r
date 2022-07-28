@@ -6,12 +6,20 @@
 #' @param filter_var Variable in shape file to filter by
 #' @param response_var Response in shape file
 #' @param cov_names Covariates to include, defaults to all covariates in covariates argument. Can include x and y
-#' @param na.action Fill NA cells in rasters
+#' @param na.action If true, fills missing data on rasters (using formula cov_missing and pop_missing). If false, only pixels with non-missing values on all layers are included. Default TRUE.
+#' @param cov_missing formula for missing covariates. performed column-wise
+#' @param pop_missing formulat for missing population. performed column-wise
 #'
 #' @return a kd_data object
 #' @export
 prepare_data <- function(shapes, covariates, population = NULL, filter_var,
-                         response_var, cov_names  = NULL, na.action = FALSE){
+                         response_var, cov_names  = NULL, na.action = TRUE,
+                         cov_missing = function(.x){
+                           median(.x, na.rm = TRUE)
+                         },
+                         pop_missing = function(.x){
+                           0
+                         }){
 
   if(!inherits(shapes, "SpatVector")){
     if(inherits(shapes, "character")){
@@ -46,79 +54,84 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     }
   }
 
+  raw <- list(shapes = shapes,
+              covariates = covariates,
+              population = population)
+
   if(is.null(cov_names)){
     cov_names <- names(covariates)
   }
 
   if(na.action){
-    population[is.na(population)] <- 0
+    population <- population %>%
+      terra::as.data.frame(xy = TRUE, na.rm = FALSE) %>%
+      dplyr::mutate(dplyr::across(population,
+                                  ~ifelse(is.na(.x), pop_missing(.x), .x))) %>%
+      terra::rast(type = "xyz", crs = terra::crs(population))
 
-    for(i in 1:dim(covariates)[3]){
-      covariates[[i]][is.na(covariates[[i]])] <-
-        sapply(covariates[[i]], function(x){
-          x <- as.data.frame(x)
-          stats::median(x[,1], na.rm = TRUE)
-        })
-    }
+    covariates <- covariates %>%
+      terra::as.data.frame(xy = TRUE, na.rm = FALSE) %>%
+      dplyr::mutate(dplyr::across(dplyr::all_of(cov_names),
+                                  ~ifelse(is.na(.x), cov_missing(.x), .x))) %>%
+      terra::rast(type = "xyz", crs = terra::crs(covariates))
   }
 
-  population <- terra::mask(population, shapes)
-  covariates <- terra::mask(covariates, shapes)
-
-  shapes_df <- terra::as.data.frame(shapes)
-  n_regions = nrow(shapes_df)
-
-  names(population) <- "population"
   stack <- c(population, covariates)
 
-  full_df <- data.frame()
-  for(i in 1:n_regions){
-    full_df <- rbind(full_df,
-                     cbind(shapes_df[i, c(filter_var, response_var)],
-                           terra::as.data.frame(terra::crop(stack, shapes[i,], mask = TRUE), xy = TRUE),
-                           row.names = NULL))
-  }
+  full_df <- dplyr::left_join(
+    terra::extract(stack, shapes, xy = TRUE),
+    shapes %>%
+      terra::as.data.frame() %>%
+      dplyr::mutate(ID = dplyr::row_number()),
+    by = "ID") %>%
+    dplyr::select(dplyr::all_of(filter_var),
+                  ID,
+                  x,
+                  y,
+                  dplyr::all_of(response_var),
+                  dplyr::all_of(cov_names),
+                  population)
 
-  startendindex <- lapply(unique(full_df[, filter_var]),
-                          function(x) range(which(full_df[, filter_var] == x))) %>%
+
+  startendindex <- lapply(unique(full_df[, "ID"]),
+                          function(x) range(which(full_df[, "ID"] == x))) %>%
     do.call(rbind, .)
   startendindex <- startendindex[, ] - 1L
 
   max_length <- full_df %>%
-    (dplyr::select)(dplyr::all_of(cov_names), ID = dplyr::all_of(filter_var)) %>%
+    dplyr::select(dplyr::all_of(cov_names), ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
     sapply(nrow) %>%
     max
 
   data_cov <- full_df %>%
-    dplyr::select(dplyr::all_of(cov_names), ID = dplyr::all_of(filter_var)) %>%
+    dplyr::select(dplyr::all_of(cov_names), ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
     lapply(pad_zeros, max_length) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_pop <- full_df %>%
-    dplyr::select(ID = dplyr::all_of(filter_var), population) %>%
+    dplyr::select(population, ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
     lapply(pad_zeros, max_length) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_xy <- full_df %>%
-    dplyr::select(ID = dplyr::all_of(filter_var), x, y) %>%
+    dplyr::select(x, y, ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
     lapply(pad_zeros, max_length) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   response <- full_df %>%
-    dplyr::select(ID = (dplyr::all_of)(filter_var), (dplyr::all_of)(names(full_df))) %>%
     dplyr::group_split(ID) %>%
-    lapply(function(x){x[1, c("ID", dplyr::all_of(response_var))]}) %>%
+    lapply(function(x){x[1, c("ID", dplyr::all_of(c(filter_var, response_var)))]}) %>%
     do.call(rbind, .)
 
   output <- response %>%
-    (dplyr::pull)(dplyr::all_of(response_var))
+    dplyr::pull(dplyr::all_of(response_var))
 
   kd_data <- list(
     inputs = list(input_cov = data_cov,
@@ -130,6 +143,7 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     covariates = covariates,
     population = population,
     shapes = shapes,
+    raw = raw,
     names = list(covariates = cov_names,
                  filter_var = filter_var,
                  response_var = response_var),
