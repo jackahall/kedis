@@ -34,14 +34,16 @@ get_subset.kd_data <- function(data, idx, n_out, n_in = NULL, ...){
                                  data$population,
                                  data$names$filter_var,
                                  data$names$response_var,
-                                 data$names$covariates)
+                                 data$names$covariates,
+                                 max_length = data$max_length)
 
     test <- kedis::prepare_data(data$shapes[which(idx == n), ],
                                 data$covariates,
                                 data$population,
                                 data$names$filter_var,
                                 data$names$response_var,
-                                data$names$covariates)
+                                data$names$covariates,
+                                max_length = data$max_length)
 
     rtn <- list(train = train,
                 test = test,

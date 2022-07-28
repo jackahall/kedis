@@ -8,12 +8,14 @@
 #' @param cov_names Covariates to include, defaults to all covariates in covariates argument. Can include x and y
 #' @param na.action If true, fills missing data on rasters (using formula cov_missing and pop_missing). If false, only pixels with non-missing values on all layers are included. Default TRUE.
 #' @param cov_missing formula for missing covariates. performed column-wise
-#' @param pop_missing formulat for missing population. performed column-wise
+#' @param pop_missing formula for missing population. performed column-wise
+#' @param max_length max length of zero padding, if null (default) calculated automatically
 #'
 #' @return a kd_data object
 #' @export
 prepare_data <- function(shapes, covariates, population = NULL, filter_var,
-                         response_var, cov_names  = NULL, na.action = TRUE,
+                         response_var, cov_names  = NULL, max_length = NULL,
+                         na.action = TRUE,
                          cov_missing = function(.x){
                            median(.x, na.rm = TRUE)
                          },
@@ -98,11 +100,13 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     do.call(rbind, .)
   startendindex <- startendindex[, ] - 1L
 
-  max_length <- full_df %>%
-    dplyr::select(dplyr::all_of(cov_names), ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
-    sapply(nrow) %>%
-    max
+  if(is.null(max_length)){
+    max_length <- full_df %>%
+      dplyr::select(dplyr::all_of(cov_names), ID) %>%
+      dplyr::group_split(ID, .keep = FALSE) %>%
+      sapply(nrow) %>%
+      max
+  }
 
   data_cov <- full_df %>%
     dplyr::select(dplyr::all_of(cov_names), ID) %>%
