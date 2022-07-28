@@ -156,7 +156,7 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
 
   if(!is.na(csv_folder)){
     if(!dir.exists(csv_folder)){
-      dir.create(csv_folder)
+      dir.create(csv_folder, recursive = TRUE)
     }
     filename <- paste0("ncv-", format(Sys.time(), "%y%m%d-%H%M%S"),".csv")
     cat("\n\nWriting .csv file:", file.path(csv_folder,
