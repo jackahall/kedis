@@ -4,7 +4,7 @@
 \alias{get_subset}
 \title{Get subset of kd_data}
 \usage{
-get_subset(data, idx, n_out, n_in = NULL, ...)
+get_subset(data, idx, n_out, ...)
 }
 \arguments{
 \item{data}{a kd_data object}
@@ -12,8 +12,6 @@ get_subset(data, idx, n_out, n_in = NULL, ...)
 \item{idx}{a kd_index object}
 
 \item{n_out}{outer loop}
-
-\item{n_in}{inner loop (NULL for non-nested Cross-Validation)}
 
 \item{...}{additional parameters}
 }

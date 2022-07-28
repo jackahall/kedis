@@ -33,6 +33,8 @@ make_index.kd_data <- function(data, k_out, k_in = NULL, seed = NULL, ...){
                              k = k_out,
                              list = FALSE)
 
+  class(outer) <- c("kd_cv_index", "kd_index", "list")
+
   if(!is.null(k_in)){
 
     idx <- list(outer = outer,
@@ -47,11 +49,11 @@ make_index.kd_data <- function(data, k_out, k_in = NULL, seed = NULL, ...){
                                              .$out,
                                            k = k_in,
                                            list = FALSE)
-      class(idx) <- c("kd_ncv_index", "kd_index", "list")
+      class(idx$inner[[i]]) <- c("kd_cv_index", "kd_index", "list")
+      class(idx) <- c("kd_ncv_index", "list")
     }
   } else {
     idx <- outer
-    class(idx) <- c("kd_cv_index", "kd_index", "list")
   }
 
   return(idx)
