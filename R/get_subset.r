@@ -44,7 +44,7 @@ get_subset.kd_cv_index <- function(data, idx, n_out, ...){
                                data$names$filter_var,
                                data$names$response_var,
                                data$names$covariates,
-                               max_length = data$max_length)
+                               max_length = data$length_pad)
 
   test <- kedis::prepare_data(data$raw$shapes[which(idx == n_out), ],
                               data$raw$covariates,
@@ -52,7 +52,7 @@ get_subset.kd_cv_index <- function(data, idx, n_out, ...){
                               data$names$filter_var,
                               data$names$response_var,
                               data$names$covariates,
-                              max_length = data$max_length)
+                              max_length = data$length_pad)
 
   rtn <- list(train = train,
               test = test,

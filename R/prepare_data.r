@@ -156,7 +156,8 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
                  response_var = response_var),
     crs = terra::crs(covariates, proj = TRUE, describe = TRUE),
     startendindex = startendindex,
-    max_length = length
+    max_length = length,
+    length_pad = max_length
   )
   class(kd_data) <- c("kd_data", "list")
   return(kd_data)
