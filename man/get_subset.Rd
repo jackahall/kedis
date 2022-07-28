@@ -2,15 +2,24 @@
 % Please edit documentation in R/get_subset.r
 \name{get_subset}
 \alias{get_subset}
-\title{get_subset generic}
+\title{Get subset of kd_data}
 \usage{
-get_subset(data, ...)
+get_subset(data, idx, n_out, n_in = NULL, ...)
 }
 \arguments{
-\item{data}{data to subset}
+\item{data}{a kd_data object}
+
+\item{idx}{a kd_index object}
+
+\item{n_out}{outer loop}
+
+\item{n_in}{inner loop (NULL for non-nested Cross-Validation)}
 
 \item{...}{additional parameters}
 }
+\value{
+either a kd_cv_data or a kd_ncv_data, depending on the index and n_in
+}
 \description{
-get_subset generic
+Get subset of kd_data
 }
