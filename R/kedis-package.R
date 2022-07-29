@@ -3,6 +3,7 @@
 
 ## usethis namespace: start
 #' @importFrom magrittr %<>%
+#' @importFrom stats cor.test
 #' @importFrom stats median
 #' @importFrom stats predict
 #' @importFrom utils write.csv

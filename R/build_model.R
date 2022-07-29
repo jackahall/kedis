@@ -23,15 +23,15 @@ build_model <- function(...) {
 #' @return a kd_model object
 #' @export
 build_model.kd_data <- function(data,
-                          layers_cov = NULL,
-                          layers_xy = NULL,
-                          inverse_link_function = function(x){exp(x)},
-                          optimizer = NULL,
-                          loss = NULL,
-                          metrics = NULL,
-                          ...,
-                          seed = NULL,
-                          clear_session = TRUE){
+                                layers_cov = NULL,
+                                layers_xy = NULL,
+                                inverse_link_function = function(x){exp(x)},
+                                optimizer = NULL,
+                                loss = NULL,
+                                metrics = NULL,
+                                ...,
+                                seed = NULL,
+                                clear_session = TRUE){
 
   add_layer <- function(x, layer){
     if(is.null(layer)){
@@ -106,6 +106,25 @@ build_model.kd_data <- function(data,
                                    input_pop),
                                  axes = 1,
                                  name = "output_agg")
+
+  agg_pop <- keras::layer_average_pooling_1d(input_pop,
+                                             pool_size = data$max_length,
+                                             name = "average_pop") %>%
+    keras::layer_lambda(function(x){
+      x * data$max_length
+    },
+    name = "agg_pop")
+
+  inv_agg_pop <- keras::layer_lambda(agg_pop,
+                                     function(x){
+                                       1 / x
+                                     },
+                                     name = "inv_agg_pop")
+
+  output_rate <- keras::layer_multiply(c(output_agg,
+                                         inv_agg_pop),
+                                       name = "output_rate")
+
   output_disagg <- keras::layer_concatenate(c(link_layer,
                                               input_xy),
                                             axis = -1,
@@ -142,7 +161,8 @@ build_model.kd_data <- function(data,
                input_xy),
     output = c(output_disagg,
                output_agg,
-               output_xy),
+               output_xy,
+               output_rate),
     name = "predict_model"
   )
 

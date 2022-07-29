@@ -94,7 +94,6 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
                   dplyr::all_of(cov_names),
                   population)
 
-
   startendindex <- lapply(unique(full_df[, "ID"]),
                           function(x) range(which(full_df[, "ID"] == x))) %>%
     do.call(rbind, .)
@@ -135,7 +134,11 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
   response <- full_df %>%
     dplyr::group_split(ID) %>%
     lapply(function(x){x[1, c("ID", dplyr::all_of(c(filter_var, response_var)))]}) %>%
-    do.call(rbind, .)
+    do.call(rbind, .) %>%
+    stats::setNames(c("ID", "filter_var", "response_var")) %>%
+    dplyr::left_join(terra::extract(stack, shapes, fun = sum) %>%
+                       dplyr::select(ID, population)) %>%
+    dplyr::mutate(rate = response_var / population)
 
   output <- response %>%
     dplyr::pull(dplyr::all_of(response_var))

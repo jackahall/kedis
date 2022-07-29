@@ -4,7 +4,16 @@
 \alias{ncv.kd_data}
 \title{Nested Cross Validation for Kedis}
 \usage{
-\method{ncv}{kd_data}(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = NA, ...)
+\method{ncv}{kd_data}(
+  data,
+  n_out_loop,
+  n_in_loop,
+  hypers,
+  seed,
+  csv_folder = NA,
+  out_loop = NA,
+  ...
+)
 }
 \arguments{
 \item{data}{a kd_data object}
@@ -18,6 +27,8 @@
 \item{seed}{seed}
 
 \item{csv_folder}{folder address to save results csv to. if na, will not save, but return a data frame}
+
+\item{out_loop}{which outer loop to run, defaults to all}
 
 \item{...}{additional parameters}
 }

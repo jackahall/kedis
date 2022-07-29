@@ -18,17 +18,18 @@ ncv <- function(data, ...){
 #' @param seed seed
 #' @param csv_folder folder address to save results csv to. if na, will not save, but return a data frame
 #' @param ... additional parameters
+#' @param out_loop which outer loop to run, defaults to all
 #'
 #' @return a data.frame and a kd_ncv_index object
 #' @export
-ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = NA, ...){
+ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = NA, out_loop = NA, ...){
 
   kd_wrapper <- function(data_full, data_train, data_validate, layers_cov, seed){
 
     kd_model <- build_model(data_full,
                             layers_cov,
-                            optimizer = optimizer_rmsprop(),
-                            loss = loss_poisson(),
+                            optimizer = keras::optimizer_rmsprop(),
+                            loss = keras::loss_poisson(),
                             metrics = "poisson",
                             seed = seed)
 
@@ -36,7 +37,7 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                         data_train,
                         epochs = 10000,
                         verbose = 0,
-                        callbacks = list(callback_early_stopping(monitor = "poisson",
+                        callbacks = list(keras::callback_early_stopping(monitor = "poisson",
                                                                  min_delta = 0.001,
                                                                  patience = 50,
                                                                  restore_best_weights = TRUE)),
@@ -56,28 +57,36 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
 
   idx <- kedis::make_index(data, n_out_loop, n_in_loop, seed = seed)
 
-  n_models <- n_out_loop * ((length(hypers) * n_in_loop) + 1)
+  out_seq <- 1:n_out_loop
+  if(!is.na(out_loop)){
+    if(out_loop %in% out_seq){
+      out_seq <- out_loop
+    } else {
+      stop("Outer loop must be within correct range")
+    }
+  }
 
-  train_seed <- sample(10000000, n_models)
+  n_models <- length(out_seq) * ((length(hypers) * n_in_loop) + 1)
 
   cat("This nested cross-validation will train", crayon::red(n_models), "models")
 
-  for(out_loop in 1:n_out_loop){
+  train_seed <- cbind(expand.grid(out_loop = 1:n_out_loop,
+                    hyper_idx = 1:length(hypers),
+                    in_loop = 1:n_in_loop),
+        seed = sample(10000000))
+
+
+  loss_archive <- data.frame()
+  overview <- list()
+
+
+  for(out_loop in out_seq){
     cat(crayon::red("\n\nOuter Loop", out_loop))
     for(hyper_idx in 1:length(hypers)){
       cat(crayon::blue(paste0("\nHyperparameter Set ", hyper_idx, ":")),
           crayon::green(paste0("\n", kedis::hypers_str(hypers[[hyper_idx]]))))
       for(in_loop in 1:n_in_loop){
 
-        if(out_loop == 1){
-          overview <- list()
-          if(hyper_idx == 1){
-            if(in_loop == 1){
-              loss_archive <- data.frame()
-              seed_idx <- 1
-            }
-          }
-        }
 
 
 
@@ -86,7 +95,16 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
 
         sub_data <- kedis::get_subset(data, idx, out_loop, in_loop)
 
-        model <- kd_wrapper(sub_data$train$full, sub_data$train$train, sub_data$train$test, hypers[[hyper_idx]], train_seed[seed_idx])
+        model <- kd_wrapper(sub_data$train$full,
+                            sub_data$train$train,
+                            sub_data$train$test,
+                            hypers[[hyper_idx]],
+                            train_seed %>%
+                              dplyr::filter(out_loop == out_loop,
+                                            hyper_idx == hyper_idx,
+                                            in_loop == in_loop) %>%
+                              dplyr::pull(seed) %>%
+                               as.numeric())
 
 
         loss <- data.frame(as.list(model$loss))
@@ -97,7 +115,10 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                                     hyper_str = kedis::hypers_str(hypers[[hyper_idx]]),
                                     covariates = paste(sub_data$full$names$covariates, collapse=","),
                                     set = "train",
-                                    tf_seed = train_seed[seed_idx],
+                                    tf_seed = train_seed %>%
+                                      dplyr::filter(out_loop == out_loop, hyper_idx == hyper_idx, in_loop == in_loop) %>%
+                                      dplyr::pull(seed) %>%
+                                      as.numeric(),
                                     outer_seed = seed,
                                     loss))
         seed_idx <- seed_idx + 1
@@ -127,7 +148,11 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
         crayon::green(paste0("\n", kedis::hypers_str(hypers[[best_hyper_set]]))))
     cat("\nOuter Loop:", out_loop, "\tHypers Set:", best_hyper_set, "\tInner Loop: NA", "\t")
 
-    model <- kd_wrapper(sub_data$full, sub_data$train$full, sub_data$test, hypers[[best_hyper_set]], train_seed[seed_idx])
+    model <- kd_wrapper(sub_data$full, sub_data$train$full, sub_data$test, hypers[[best_hyper_set]],
+                        train_seed %>%
+                          dplyr::filter(out_loop == out_loop, hyper_idx == hyper_idx, in_loop == in_loop) %>%
+                          dplyr::pull(seed) %>%
+                          as.numeric())
 
 
     loss <- data.frame(as.list(model$loss))
@@ -138,7 +163,10 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                                 hyper_str = kedis::hypers_str(hypers[[best_hyper_set]]),
                                 covariates = paste(sub_data$full$names$covariates, collapse=","),
                                 set = "test",
-                                tf_seed = train_seed[seed_idx],
+                                tf_seed = train_seed %>%
+                                  dplyr::filter(out_loop == out_loop, hyper_idx == hyper_idx, in_loop == in_loop) %>%
+                                  dplyr::pull(seed) %>%
+                                  as.numeric(),
                                 outer_seed = seed,
                                 loss))
     seed_idx <- seed_idx + 1
