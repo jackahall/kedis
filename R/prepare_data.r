@@ -92,7 +92,8 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
                   y,
                   dplyr::all_of(response_var),
                   dplyr::all_of(cov_names),
-                  population)
+                  population) %>%
+    suppressMessages()
 
   startendindex <- lapply(unique(full_df[, "ID"]),
                           function(x) range(which(full_df[, "ID"] == x))) %>%
@@ -138,7 +139,8 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     stats::setNames(c("ID", "filter_var", "response_var")) %>%
     dplyr::left_join(terra::extract(stack, shapes, fun = sum) %>%
                        dplyr::select(ID, population)) %>%
-    dplyr::mutate(rate = response_var / population)
+    dplyr::mutate(rate = response_var / population) %>%
+    suppressMessages()
 
   output <- response %>%
     dplyr::pull(dplyr::all_of(response_var))

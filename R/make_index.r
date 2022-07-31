@@ -25,7 +25,7 @@ make_index.kd_data <- function(data, k_out, k_in = NULL, seed = NULL, ...){
 
   name <- data$names$response_var
   y <- data$response %>%
-    dplyr::pull(dplyr::all_of(name))
+    dplyr::pull("response_var")
 
   outer = caret::createFolds(y,
                              k = k_out,

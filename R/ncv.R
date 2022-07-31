@@ -38,9 +38,9 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                         epochs = 10000,
                         verbose = 0,
                         callbacks = list(keras::callback_early_stopping(monitor = "poisson",
-                                                                 min_delta = 0.001,
-                                                                 patience = 50,
-                                                                 restore_best_weights = TRUE)),
+                                                                        min_delta = 0.001,
+                                                                        patience = 50,
+                                                                        restore_best_weights = TRUE)),
                         validation_set = data_validate)
     kd_loss <- loss(kd_model, data_validate)
 
@@ -70,11 +70,16 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
 
   cat("This nested cross-validation will train", crayon::red(n_models), "models")
 
-  train_seed <- cbind(expand.grid(out_loop = 1:n_out_loop,
-                    hyper_idx = 1:length(hypers),
-                    in_loop = 1:n_in_loop),
-        seed = sample(10000000))
-
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
+  train_seed <- cbind(expand.grid(
+    in_loop_ = c(1:n_in_loop, 0),
+    hyper_idx_ = 1:length(hypers),
+    out_loop_ = 1:n_out_loop),
+    seed = sample(10000000,
+                  size =  n_out_loop * length(hypers) * (n_in_loop+1),
+                  replace = TRUE))
 
   loss_archive <- data.frame()
   overview <- list()
@@ -87,8 +92,13 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
           crayon::green(paste0("\n", kedis::hypers_str(hypers[[hyper_idx]]))))
       for(in_loop in 1:n_in_loop){
 
+        inner_seed <-   train_seed %>%
+          dplyr::filter(in_loop_ == in_loop,
+                        hyper_idx_ == hyper_idx,
+                        out_loop_ == out_loop) %>%
+          dplyr::pull(seed)
 
-
+        cat("\nSeed:", inner_seed)
 
 
         cat("\nOuter Loop:", out_loop, "\tHypers Set:", hyper_idx, "\tInner Loop:", in_loop, "\t")
@@ -99,12 +109,7 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                             sub_data$train$train,
                             sub_data$train$test,
                             hypers[[hyper_idx]],
-                            train_seed %>%
-                              dplyr::filter(out_loop == out_loop,
-                                            hyper_idx == hyper_idx,
-                                            in_loop == in_loop) %>%
-                              dplyr::pull(seed) %>%
-                               as.numeric())
+                            inner_seed)
 
 
         loss <- data.frame(as.list(model$loss))
@@ -115,13 +120,9 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                                     hyper_str = kedis::hypers_str(hypers[[hyper_idx]]),
                                     covariates = paste(sub_data$full$names$covariates, collapse=","),
                                     set = "train",
-                                    tf_seed = train_seed %>%
-                                      dplyr::filter(out_loop == out_loop, hyper_idx == hyper_idx, in_loop == in_loop) %>%
-                                      dplyr::pull(seed) %>%
-                                      as.numeric(),
+                                    tf_seed = inner_seed,
                                     outer_seed = seed,
                                     loss))
-        seed_idx <- seed_idx + 1
         cat(paste("Loss Difference:", round(loss[3], 2), "\tExec Time:", round(model$history$exec_time[3], 2)))
 
       }
@@ -144,15 +145,18 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
       dplyr::summarize("Min_Mean_Difference_Location" = hyper_idx[which.min(Mean_Difference)]) %>%
       as.numeric
 
+    inner_seed <-   train_seed %>%
+      dplyr::filter(in_loop_ == 0,
+                    hyper_idx_ == hyper_idx,
+                    out_loop_ == out_loop) %>%
+      dplyr::pull(seed)
+
     cat(crayon::magenta("\nTraining optimal hyperparameter set on outer loop"),
         crayon::green(paste0("\n", kedis::hypers_str(hypers[[best_hyper_set]]))))
     cat("\nOuter Loop:", out_loop, "\tHypers Set:", best_hyper_set, "\tInner Loop: NA", "\t")
 
     model <- kd_wrapper(sub_data$full, sub_data$train$full, sub_data$test, hypers[[best_hyper_set]],
-                        train_seed %>%
-                          dplyr::filter(out_loop == out_loop, hyper_idx == hyper_idx, in_loop == in_loop) %>%
-                          dplyr::pull(seed) %>%
-                          as.numeric())
+                        inner_seed)
 
 
     loss <- data.frame(as.list(model$loss))
@@ -163,13 +167,9 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                                 hyper_str = kedis::hypers_str(hypers[[best_hyper_set]]),
                                 covariates = paste(sub_data$full$names$covariates, collapse=","),
                                 set = "test",
-                                tf_seed = train_seed %>%
-                                  dplyr::filter(out_loop == out_loop, hyper_idx == hyper_idx, in_loop == in_loop) %>%
-                                  dplyr::pull(seed) %>%
-                                  as.numeric(),
+                                tf_seed = inner_seed,
                                 outer_seed = seed,
                                 loss))
-    seed_idx <- seed_idx + 1
 
     cat(paste("Loss Difference:", round(loss[3], 2), "\tExec Time:", round(model$history$exec_time[3], 2)))
 
@@ -196,5 +196,6 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
   }
 
   list(loss_archive = loss_archive,
-       idx = idx)
+       idx = idx,
+       train_seed = train_seed)
 }
