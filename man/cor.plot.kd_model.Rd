@@ -4,10 +4,12 @@
 \alias{cor.plot.kd_model}
 \title{Correlation Plot for kd_model}
 \usage{
-\method{cor.plot}{kd_model}(x, ...)
+\method{cor.plot}{kd_model}(x, identity_line = TRUE, ...)
 }
 \arguments{
 \item{x}{a kd_model object}
+
+\item{identity_line}{include a line of x=y, default TRUE}
 
 \item{...}{additional parameters}
 }
