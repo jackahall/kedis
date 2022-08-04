@@ -45,7 +45,7 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
         covariates <- terra::rast(covariates)
       } else {
         stopifnot(dir.exists(covariates))
-        covariate_files <- list.files("data/covariates", pattern = ".tif$",
+        covariate_files <- list.files(covariates, pattern = ".tif$",
                                       full.names = TRUE)
         stopifnot(length(covariate_files) != 0)
         covariates <- terra::rast(covariate_files)
