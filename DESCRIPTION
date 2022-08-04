@@ -17,6 +17,7 @@ Imports:
     generics,
     ggplot2,
     magrittr,
+    Metrics,
     sf,
     stats,
     tensorflow,
