@@ -58,8 +58,8 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
   idx <- kedis::make_index(data, n_out_loop, n_in_loop, seed = seed)
 
   out_seq <- 1:n_out_loop
-  if(!is.na(out_loop)){
-    if(out_loop %in% out_seq){
+  if(!anyNA(out_loop)){
+    if(all(out_loop %in% out_seq)){
       out_seq <- out_loop
     } else {
       stop("Outer loop must be within correct range")
