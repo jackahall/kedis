@@ -40,12 +40,10 @@ loss.kd_model <- function(model, data = model$data, full = FALSE, min = TRUE, ..
       df %>%
         dplyr::select(-c("Predicted", "Actual")) %>%
         colSums %>%
-        `/`(nrow(df))
+        magrittr::divide_by(nrow(df))
     } else{
       colSums(df)["Poisson_Loss"] %>%
-        `/`(nrow(df))
+        magrittr::divide_by(nrow(df))
     }
   }
-
 }
-
