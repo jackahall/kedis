@@ -32,3 +32,13 @@ mae.kd_model <- function(actual,
   Metrics::mae(actual_rate, predicted)
 }
 
+#' Mean Absolute Error of kd_cv
+#'
+#' @param actual a fitted kd_cv object
+#' @param predicted the predicted rates, default is from kd_cv
+#'
+#' @export
+mae.kd_cv <- function(actual,
+                      predicted = join_cv_predictions(actual)$predicted){
+  Metrics::mae(join_cv_predictions(actual)$actual, predicted)
+}

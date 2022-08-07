@@ -32,3 +32,13 @@ rrse.kd_model <- function(actual,
   Metrics::rrse(actual_rate, predicted)
 }
 
+#' Root Relative Squared Error of kd_cv
+#'
+#' @param actual a fitted kd_cv object
+#' @param predicted the predicted rates, default is from kd_cv
+#'
+#' @export
+rrse.kd_cv <- function(actual,
+                       predicted = join_cv_predictions(actual)$predicted){
+  Metrics::rrse(join_cv_predictions(actual)$actual, predicted)
+}

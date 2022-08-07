@@ -32,3 +32,13 @@ rae.kd_model <- function(actual,
   Metrics::rae(actual_rate, predicted)
 }
 
+#' Relative Absolute Error of kd_cv
+#'
+#' @param actual a fitted kd_cv object
+#' @param predicted the predicted rates, default is from kd_cv
+#'
+#' @export
+rae.kd_cv <- function(actual,
+                      predicted = join_cv_predictions(actual)$predicted){
+  Metrics::rae(join_cv_predictions(actual)$actual, predicted)
+}

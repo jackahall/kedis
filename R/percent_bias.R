@@ -25,10 +25,20 @@ percent_bias.default <- function(actual, predicted){
 #'
 #' @export
 percent_bias.kd_model <- function(actual,
-                          predicted = predict(actual$predict_model,
-                                              actual$data$inputs,
-                                              verbose = 0)[[4]]){
+                                  predicted = predict(actual$predict_model,
+                                                      actual$data$inputs,
+                                                      verbose = 0)[[4]]){
   actual_rate = actual$data$response$rate
   Metrics::percent_bias(actual_rate, predicted)
 }
 
+#' Percent Bias of kd_cv
+#'
+#' @param actual a fitted kd_cv object
+#' @param predicted the predicted rates, default is from kd_cv
+#'
+#' @export
+percent_bias.kd_cv <- function(actual,
+                               predicted = join_cv_predictions(actual)$predicted){
+  Metrics::percent_bias(join_cv_predictions(actual)$actual, predicted)
+}

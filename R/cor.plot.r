@@ -19,7 +19,7 @@ cor.plot <- function(x, ...){
 #' @export
 cor.plot.kd_model <- function(x, identity_line = TRUE, ...){
   plot <- cbind(prediction = predict(x$predict_model, x$data$inputs, verbose = 0)[[4]],
-        actual = x$data$response$rate) %>%
+                actual = x$data$response$rate) %>%
     as.data.frame %>%
     ggplot2::ggplot() +
     ggplot2::geom_point(ggplot2::aes(x = actual, y = prediction), ...)
@@ -51,17 +51,9 @@ cor.plot.kd_model_htest <- function(x, ...){
 #' @return a plot
 #' @export
 cor.plot.kd_cv <- function(x, identity_line = TRUE, ...){
-  pred <- list()
-  for(i in seq_len(x$k)){
-    pred[[i]] <- cbind(
-      prediction = x$prediction[[i]][[4]],
-      actual = x$sub_data[[i]]$test$response$rate,
-      fold = i)
-  }
-  plot <- do.call(rbind, pred) %>%
-    as.data.frame() %>%
+  plot <- join_cv_predictions(x, ...) %>%
     ggplot2::ggplot() +
-    ggplot2::geom_point(ggplot2::aes(x = actual, y  = prediction))
+    ggplot2::geom_point(ggplot2::aes(x = actual, y  = predicted))
   if(identity_line){
     plot <- plot +
       ggplot2::geom_function(fun = function(x) x)

@@ -32,3 +32,13 @@ mse.kd_model <- function(actual,
   Metrics::mse(actual_rate, predicted)
 }
 
+#' Mean Squared Error of kd_cv
+#'
+#' @param actual a fitted kd_cv object
+#' @param predicted the predicted rates, default is from kd_cv
+#'
+#' @export
+mse.kd_cv <- function(actual,
+                      predicted = join_cv_predictions(actual)$predicted){
+  Metrics::mse(join_cv_predictions(actual)$actual, predicted)
+}

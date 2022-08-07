@@ -25,10 +25,21 @@ ae.default <- function(actual, predicted){
 #'
 #' @export
 ae.kd_model <- function(actual,
-                         predicted = predict(actual$predict_model,
-                                             actual$data$inputs,
-                                             verbose = 0)[[4]]){
+                        predicted = predict(actual$predict_model,
+                                            actual$data$inputs,
+                                            verbose = 0)[[4]]){
   actual_rate = actual$data$response$rate
   Metrics::ae(actual_rate, predicted)
+}
+
+#' Absolute Error of kd_cv
+#'
+#' @param actual a fitted kd_cv object
+#' @param predicted the predicted rates, default is from kd_cv
+#'
+#' @export
+ae.kd_cv <- function(actual,
+                     predicted = join_cv_predictions(actual)$predicted){
+  Metrics::ae(join_cv_predictions(actual)$actual, predicted)
 }
 

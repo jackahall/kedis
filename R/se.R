@@ -32,3 +32,13 @@ se.kd_model <- function(actual,
   Metrics::se(actual_rate, predicted)
 }
 
+#' Squared Error of kd_cv
+#'
+#' @param actual a fitted kd_cv object
+#' @param predicted the predicted rates, default is from kd_cv
+#'
+#' @export
+se.kd_cv <- function(actual,
+                     predicted = join_cv_predictions(actual)$predicted){
+  Metrics::se(join_cv_predictions(actual)$actual, predicted)
+}
