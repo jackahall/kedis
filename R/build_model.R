@@ -25,7 +25,7 @@ build_model <- function(...) {
 build_model.kd_data <- function(data,
                                 layers_cov = NULL,
                                 layers_xy = NULL,
-                                inverse_link_function = function(x){exp(x)},
+                                link = "identity",
                                 optimizer = NULL,
                                 loss = NULL,
                                 metrics = NULL,
@@ -37,28 +37,8 @@ build_model.kd_data <- function(data,
     if(is.null(layer)){
       x
     } else {
-
       stopifnot(inherits(layer, "keras.engine.base_layer.Layer"))
-
-      if(inherits(layer, "keras.layers.regularization.dropout.Dropout")){
-        if(layer$rate == 0){
-          x
-        } else {
-          x %>% layer
-        }
-      }
-
-      else if (inherits(layer, "keras.layers.core.dense.Dense")){
-        if(layer$units == 0){
-          x
-        } else {
-          x %>% layer
-        }
-      }
-
-      else {
-        x
-      }
+      x %>% layer
     }
   }
 
@@ -98,8 +78,48 @@ build_model.kd_data <- function(data,
     spatial_summing_layer <- training_layers_cov
   }
 
+  if(link == "logit"){
+    linkinv <- function(eta){
+      .Call(C_logit_linkinv, eta)
+    }
+  } else if(link == "probit"){
+    linkinv <- function(eta){
+      stats::pnorm(eta)
+    }
+  } else if(link == "cauchit"){
+    linkinv <- function(eta){
+      stats::pcauchy(eta)
+    }
+  } else if(link == "cloglog"){
+    linkinv <- function(eta){
+      -expm1(-exp(eta))
+    }
+  } else if(link == "identity"){
+    linkinv <- function(eta){
+      eta
+    }
+  } else if(link == "log"){
+    linkinv <- function(eta){
+      exp(eta)
+    }
+  } else if(link == "sqrt"){
+    linkinv <- function(eta){
+      eta^2
+    }
+  } else if(link == "1/mu^2"){
+    linkinv <- function(eta){
+      1/sqrt(eta)
+    }
+  } else if(link == "inverse"){
+    linkinv <- function(eta){
+      1/eta
+    }
+  } else {
+    stop("Link not valid")
+  }
+
   link_layer <- spatial_summing_layer %>%
-    keras::layer_lambda(inverse_link_function,
+    keras::layer_lambda(linkinv,
                         name = "link_layer")
 
   output_agg <- keras::layer_dot(c(link_layer,
