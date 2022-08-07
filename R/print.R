@@ -17,3 +17,13 @@ print.kd_model <- function(x, ...){
 print.kd_data <- function(x, ...){
   summary(x)
 }
+
+#' Print kd_cv
+#'
+#' @param x a kd_cv object
+#' @param ... additional parameters
+#'
+#' @export
+print.kd_cv <- function(x, ...){
+  summary(x)
+}

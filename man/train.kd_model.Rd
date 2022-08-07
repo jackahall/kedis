@@ -4,12 +4,14 @@
 \alias{train.kd_model}
 \title{train}
 \usage{
-\method{train}{kd_model}(x, data = x$data, ..., verbose = 0)
+\method{train}{kd_model}(x, data = x$data, validation_data = NULL, ..., verbose = 0)
 }
 \arguments{
 \item{x}{kd_model}
 
 \item{data}{kd_data}
+
+\item{validation_data}{validation data as a kd_data object}
 
 \item{...}{arguments to keras::fit}
 

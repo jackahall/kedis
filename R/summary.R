@@ -22,3 +22,24 @@ summary.kd_data <- function(object, ...){
   cat("\nLargest region:\t\t\t", object$max_length)
   cat("\nCovarites used:\t", paste(object$names$covariates, collapse = ", "))
 }
+
+#' Summarize kd_cv
+#'
+#' @param object a kd_cv object
+#' @param ... additional parameters
+#'
+#' @export
+summary.kd_cv <- function(object, ...){
+  cat("\nCross-Validation of a Kedis model")
+  cat("\nk =", object$k, "\n")
+
+  cat("\nLosses per fold:\n")
+  lossdf <- do.call(rbind, object$loss) %>%
+    as.data.frame()
+  print(lossdf)
+
+  cat("\nMean Loss Difference: ")
+  cat(lossdf %>%
+          dplyr::summarize(mean = mean(Difference)) %>%
+            dplyr::pull(mean))
+}
