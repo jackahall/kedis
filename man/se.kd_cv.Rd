@@ -4,7 +4,7 @@
 \alias{se.kd_cv}
 \title{Squared Error of kd_cv}
 \usage{
-\method{se}{kd_cv}(actual, predicted = actual$predicted)
+\method{se}{kd_cv}(actual, predicted = join_cv_predictions(actual)$predicted)
 }
 \arguments{
 \item{actual}{a fitted kd_cv object}

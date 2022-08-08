@@ -4,7 +4,7 @@
 \alias{mdae.kd_cv}
 \title{Median Absolute Error of kd_cv}
 \usage{
-\method{mdae}{kd_cv}(actual, predicted = actual$predicted)
+\method{mdae}{kd_cv}(actual, predicted = join_cv_predictions(actual)$predicted)
 }
 \arguments{
 \item{actual}{a fitted kd_cv object}

@@ -4,7 +4,7 @@
 \alias{ae.kd_cv}
 \title{Absolute Error of kd_cv}
 \usage{
-\method{ae}{kd_cv}(actual, predicted = actual$predicted)
+\method{ae}{kd_cv}(actual, predicted = join_cv_predictions(actual)$predicted)
 }
 \arguments{
 \item{actual}{a fitted kd_cv object}

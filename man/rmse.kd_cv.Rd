@@ -4,7 +4,7 @@
 \alias{rmse.kd_cv}
 \title{Root Mean Squared Error of kd_cv}
 \usage{
-\method{rmse}{kd_cv}(actual, predicted = actual$predicted)
+\method{rmse}{kd_cv}(actual, predicted = join_cv_predictions(actual)$predicted)
 }
 \arguments{
 \item{actual}{a fitted kd_cv object}

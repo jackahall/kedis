@@ -4,7 +4,7 @@
 \alias{rmsle.kd_cv}
 \title{Root Mean Squared Log Error of kd_cv}
 \usage{
-\method{rmsle}{kd_cv}(actual, predicted = actual$predicted)
+\method{rmsle}{kd_cv}(actual, predicted = join_cv_predictions(actual)$predicted)
 }
 \arguments{
 \item{actual}{a fitted kd_cv object}

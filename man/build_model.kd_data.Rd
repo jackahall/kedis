@@ -8,9 +8,7 @@
   data,
   layers_cov = NULL,
   layers_xy = NULL,
-  inverse_link_function = function(x) {
-     exp(x)
- },
+  link = "identity",
   optimizer = NULL,
   loss = NULL,
   metrics = NULL,
@@ -26,8 +24,6 @@
 
 \item{layers_xy}{list of layers for xy training}
 
-\item{inverse_link_function}{inverse link function, defaults to exponential}
-
 \item{optimizer}{keras optimizer}
 
 \item{loss}{keras loss, if included model will compile}
@@ -39,6 +35,8 @@
 \item{seed}{seed, default NULL}
 
 \item{clear_session}{default TRUE, clears keras session before running}
+
+\item{inverse_link_function}{inverse link function, defaults to exponential}
 }
 \value{
 a kd_model object

@@ -47,3 +47,13 @@ plot.kd_model <- function(x, data = x$data, gglayers = NULL, reagg = FALSE,
   class(kd_plot) <- c("kd_plot", class(kd_plot))
   return(kd_plot)
 }
+
+#' Plot the history of a kd_cv object
+#'
+#' @param x a kd_cv object
+#' @param ... parameters to pass to plot.keras_training_history
+#'
+#' @export
+plot.kd_cv <- function(x, ...){
+  ggpubr::ggarrange(plotlist = lapply(x$history, plot, ...))
+}
