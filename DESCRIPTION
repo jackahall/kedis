@@ -1,6 +1,6 @@
 Package: kedis
 Title: Disaggregation with Keras Neural Networks
-Version: 0.0.0.9010
+Version: 0.0.0.9011
 Authors@R: 
     person("Jack", "Hall", , "jackhall1996@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3016-7624"))
