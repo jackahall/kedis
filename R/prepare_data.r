@@ -20,7 +20,7 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
                            median(.x, na.rm = TRUE)
                          },
                          pop_missing = function(.x){
-                           0
+                           return(0)
                          }){
 
   if(!inherits(shapes, "SpatVector")){
@@ -65,6 +65,11 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     cov_names <- names(covariates)
   }
 
+  cov_names_norm <- cov_names
+  if(all(c("x_norm", "y_norm") %in% cov_names)){
+    cov_names <- cov_names[which(cov_names != c("x_norm", "y_norm"))]
+  }
+
   if(na.action){
     population <- population %>%
       terra::as.data.frame(xy = TRUE, na.rm = FALSE) %>%
@@ -81,16 +86,21 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
 
   stack <- c(population, covariates)
 
+  cov_names <- cov_names_norm
+
   full_df <- dplyr::left_join(
     terra::extract(stack, shapes, xy = TRUE),
     shapes %>%
       terra::as.data.frame() %>%
       dplyr::mutate(ID = dplyr::row_number()),
     by = "ID") %>%
+    dplyr::mutate(dplyr::across(c("x", "y"), ~scale(.x), .names = "{.col}_norm")) %>%
     dplyr::select(dplyr::all_of(filter_var),
                   ID,
                   x,
                   y,
+                  x_norm,
+                  y_norm,
                   dplyr::all_of(response_var),
                   dplyr::all_of(cov_names),
                   population) %>%
@@ -133,6 +143,13 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     simplify2array %>%
     aperm(c(3, 1, 2))
 
+  data_xy_norm <- full_df %>%
+    dplyr::select(x_norm, y_norm, ID) %>%
+    dplyr::group_split(ID, .keep = FALSE) %>%
+    lapply(pad_zeros, max_length) %>%
+    simplify2array %>%
+    aperm(c(3, 1, 2))
+
   response <- full_df %>%
     dplyr::group_split(ID) %>%
     lapply(function(x){x[1, c("ID", dplyr::all_of(c(filter_var, response_var)))]}) %>%
@@ -149,7 +166,8 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
   kd_data <- list(
     inputs = list(input_cov = data_cov,
                   input_pop = data_pop,
-                  input_xy = data_xy),
+                  input_xy = data_xy,
+                  input_xy_norm = data_xy_norm),
     outputs = list(output),
     response = response,
     full_df = full_df,

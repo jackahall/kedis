@@ -10,8 +10,8 @@ build_model <- function(...) {
 #' build_model
 #'
 #' @param data kd_data
-#' @param layers_cov list of layers for covariate training
-#' @param layers_xy list of layers for xy training
+#' @param layers_cov list of layers for covariate training. If NULL, pass through with no additional layers.
+#' @param layers_xy list of layers for xy training, otherwise if TRUE, pass through with no additional layers. If NULL, do not include xy layers. Default NULL
 #' @param inverse_link_function inverse link function, defaults to exponential
 #' @param optimizer keras optimizer
 #' @param loss keras loss, if included model will compile
@@ -54,6 +54,7 @@ build_model.kd_data <- function(data,
   input_cov <- keras::layer_input(shape = dim(data$input$input_cov)[-1], name = "input_cov")
   input_pop <- keras::layer_input(shape = dim(data$input$input_pop)[-1], name = "input_pop")
   input_xy <- keras::layer_input(shape = dim(data$input$input_xy)[-1], name = "input_xy")
+  input_xy_norm <- keras::layer_input(shape = dim(data$input$input_xy_norm)[-1], name = "input_xy_norm")
 
   training_layers_cov <- input_cov
   for(i in 1:length(layers_cov)){
@@ -63,19 +64,25 @@ build_model.kd_data <- function(data,
   training_layers_cov <- training_layers_cov %>%
     keras::layer_dense(units = 1, name = "training_layers_cov_final")
 
-  if(!is.null(layers_xy)){
-    training_layers_xy <- input_xy
-    for(i in 1:length(layers_xy)){
-      training_layers_xy <- training_layers_xy %>%
-        add_layer(layers_xy[[i]])
+  if(is.null(layers_xy)){
+    spatial_summing_layer <- training_layers_cov
+  } else {
+    training_layers_xy <- input_xy_norm
+    if(inherits(layers_xy, "list")){
+      for(i in 1:length(layers_xy)){
+        training_layers_xy <- training_layers_xy %>%
+          add_layer(layers_xy[[i]])
+      }
+    } else if(layers_xy){
+
+    } else {
+      stop("Enter valid value for layers_xy")
     }
     training_layers_xy <- training_layers_xy %>%
       keras::layer_dense(units = 1, name = "training_layers_xy_final")
     spatial_summing_layer <- keras::layer_add(c(training_layers_cov,
                                                 training_layers_xy),
                                               name = "spatial_summing_layer")
-  } else {
-    spatial_summing_layer <- training_layers_cov
   }
 
   if(link == "logit"){
@@ -161,7 +168,8 @@ build_model.kd_data <- function(data,
   train_model <- keras:: keras_model(
     inputs = c(input_cov,
                input_pop,
-               input_xy),
+               input_xy,
+               input_xy_norm),
     outputs = c(output_agg),
     name = "train_model"
   )
@@ -178,7 +186,8 @@ build_model.kd_data <- function(data,
   predict_model <- keras::keras_model(
     inputs = c(input_cov,
                input_pop,
-               input_xy),
+               input_xy,
+               input_xy_norm),
     output = c(output_disagg,
                output_agg,
                output_xy,

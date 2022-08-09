@@ -17,7 +17,7 @@ prepare_data(
      median(.x, na.rm = TRUE)
  },
   pop_missing = function(.x) {
-     0
+     return(0)
  }
 )
 }
