@@ -75,7 +75,7 @@ predict.kd_model <- function(object, data = object$data, as.data.frame = FALSE, 
 #'
 #' @export
 predict.kd_new_data <- function(object, as.data.frame = FALSE, ...){
-  pred <- predict(object$model$predict_model, object$inputs)[[1]]
+  pred <- predict(object$model$predict_model, object$inputs, verbose = 0, ...)[[1]]
 
   pred <- pred %>%
     matrix(ncol = 3) %>%
