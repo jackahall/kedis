@@ -16,7 +16,7 @@ Import library
 library(kedis)
 ```
 
-Prepare data. Shape, covariates and population can either be paths to .shp or .tif files, or SpatVector and SpatRasters.
+Prepare data. `shapes`, `covariates` and `population` can either be paths to .shp or .tif files, or `SpatVector` and `SpatRasters`.
 ```{r}
 data <- prepare_data(shapes = "data/shapes.shp",
                      covariates = "data/covariates.tif",
@@ -25,7 +25,7 @@ data <- prepare_data(shapes = "data/shapes.shp",
                      filter_var = "filter_var")
 ```
 
-Build a kedis model. Log link because this data has a poisson distribution. Parameters are the same as for keras::fit. Layers are included as lists.
+Build a kedis model. Log link because this data has a poisson distribution. Parameters are the same as for `keras::fit`. Layers are included as lists.
 
 ```{r}
 model <- build_model(data,
@@ -70,6 +70,21 @@ View scatter plots and metrics
 cor.plot(model)
 mae(model)
 rmse(model)
+```
+
+For predictions with new data, first format new data using `new_data_for_predict` where `model` is a `kd_model` object to predict with, `covariates` is a `SpatRaster` of covariates (layers must match that in the model) and `population` is a `SpatRaster` of population data
+```{r}
+newdata <- new_data_for_predict(model, covariates, population)
+```
+
+Predictions can then be made using the `predict` function:
+```{r}
+new_data_prediction <- predict(new_data)
+```
+
+This can be plotted:
+```{r}
+plot(new_data_prediction)
 ```
 
 ## Project Status
