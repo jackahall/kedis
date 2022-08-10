@@ -2,6 +2,7 @@
 
 ![GitHub R package version](https://img.shields.io/github/r-package/v/jackahall/kedis)
 ![GitHub issues](https://img.shields.io/github/issues/jackahall/kedis)
+[![DOI](https://zenodo.org/badge/518570817.svg)](https://zenodo.org/badge/latestdoi/518570817)
 
 A package allowing disaggregation regression to be fitted using Neural Networks from Keras.
 
