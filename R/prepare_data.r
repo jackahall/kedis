@@ -9,12 +9,12 @@
 #' @param na.action If true, fills missing data on rasters (using formula cov_missing and pop_missing). If false, only pixels with non-missing values on all layers are included. Default TRUE.
 #' @param cov_missing formula for missing covariates. performed column-wise
 #' @param pop_missing formula for missing population. performed column-wise
-#' @param max_length max length of zero padding, if null (default) calculated automatically
+#' @param length_pad max length of zero padding, if null (default) calculated automatically
 #'
 #' @return a kd_data object
 #' @export
 prepare_data <- function(shapes, covariates, population = NULL, filter_var,
-                         response_var, cov_names  = NULL, max_length = NULL,
+                         response_var, cov_names  = NULL, length_pad = NULL,
                          na.action = TRUE,
                          cov_missing = function(.x){
                            median(.x, na.rm = TRUE)
@@ -118,35 +118,35 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     sapply(nrow) %>%
     max
 
-  if(is.null(max_length)){
-    max_length <- length
+  if(is.null(length_pad)){
+    length_pad <- length
   }
 
   data_cov <- full_df %>%
     dplyr::select(dplyr::all_of(cov_names), ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
-    lapply(pad_zeros, max_length) %>%
+    lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_pop <- full_df %>%
     dplyr::select(population, ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
-    lapply(pad_zeros, max_length) %>%
+    lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_xy <- full_df %>%
     dplyr::select(x, y, ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
-    lapply(pad_zeros, max_length) %>%
+    lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_xy_norm <- full_df %>%
     dplyr::select(x_norm, y_norm, ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
-    lapply(pad_zeros, max_length) %>%
+    lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
@@ -180,8 +180,8 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
                  response_var = response_var),
     crs = terra::crs(covariates, proj = TRUE, describe = TRUE),
     startendindex = startendindex,
-    max_length = length,
-    length_pad = max_length
+    max_length = length, # Actual maximum length
+    length_pad = length_pad # Length to pad to
   )
   class(kd_data) <- c("kd_data", "list")
   return(kd_data)

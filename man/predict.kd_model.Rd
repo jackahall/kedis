@@ -4,16 +4,14 @@
 \alias{predict.kd_model}
 \title{predict}
 \usage{
-\method{predict}{kd_model}(object, data = object$data, reagg = FALSE, xy = FALSE, ...)
+\method{predict}{kd_model}(object, data = object$data, as.data.frame = FALSE, ...)
 }
 \arguments{
-\item{object}{kd_model}
+\item{object}{a kd_model object}
 
-\item{data}{kd_data}
+\item{data}{a kd_data object. defaults to the data from object}
 
-\item{reagg}{reaggregate output}
-
-\item{xy}{return field output, only works if model has layers_xy declared, otherwise returns prediction}
+\item{as.data.frame}{If FALSE, returns as SpatRasters or SpatVectors. If TRUE, returns as data.frames for rasters and sf for vectors}
 
 \item{...}{for predict generic}
 }

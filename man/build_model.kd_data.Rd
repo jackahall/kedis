@@ -22,7 +22,7 @@
 
 \item{layers_cov}{list of layers for covariate training. If NULL, pass through with no additional layers.}
 
-\item{layers_xy}{list of layers for xy training, otherwise if TRUE, pass through with no additional layers. If NULL, do not include xy layers. Default NULL}
+\item{layers_xy}{list of layers for xy training, otherwise if TRUE, pass through with no additional layers. If NULL, do not include xy layers. Default NULL. If NULL, output_xy will be the same as output_disag}
 
 \item{optimizer}{keras optimizer}
 

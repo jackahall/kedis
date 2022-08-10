@@ -1,51 +1,53 @@
-#' plot
+#' plot a kd_predict
 #'
-#' @param x kd_model
-#' @param data kd_data, defaults to data from kd_model
-#' @param gglayers list of layers to add to ggplot
-#' @param reagg reaggregate output
-#' @param xy plot field, only valid if layers_xy included otherwise returns prediction
-#' @param compare compare to actual data, only works tfor reagg = TRUE
+#' @param x a kd_predict object, made from predict.kd_model
+#' @param layer which layer to plot. One of either "output_disag", "output_agg", "output_xy", "output_rate", or any column from the "shapes" SpatVector
 #' @param ... for plot generic
 #'
-#' @return a kd_plot object
 #' @export
-plot.kd_model <- function(x, data = x$data, gglayers = NULL, reagg = FALSE,
-                    xy = FALSE, compare = FALSE, ...){
-  if(reagg){
-    kd_plot <- predict(x, reagg = TRUE) %>%
-      (sf::st_as_sf)()
-    if(compare){
-      kd_plot <- kd_plot %>%
-      tidyr::pivot_longer(dplyr::all_of(c("prediction", data$names$response_var)))
-    } else {
-        kd_plot <- kd_plot %>%
-          (dplyr::mutate)(value = prediction)
-      }
-    kd_plot <- kd_plot %>%
-      (ggplot2::ggplot)() +
-      ggplot2::geom_sf(ggplot2::aes(fill = value)) +
-      ggplot2::scale_fill_distiller(palette = "YlOrRd", direction = 1, na.value = NA) +
-      ggplot2::theme_bw() +
-      gglayers
-    if(compare){
-      name.labs <- c("Actual", "Prediction")
-      names(name.labs) <- c(data$names$response_var, "kd_predict")
-      kd_plot <- kd_plot +
-        ggplot2::facet_wrap(~name,
-                            labeller = ggplot2::labeller(name = name.labs))
-    }
+plot.kd_predict <- function(x, layer = "output_disag", ...){
+  stopifnot(inherits(layer, "character"))
+
+  pred_names <- c("output_disag", "output_agg", "output_xy", "output_rate")
+
+  if(length(layer) != 1){
+    stop("Length of pred must be 1")
+  } else if(layer %in% pred_names){
+    pred <- x[[layer]]
   } else {
-    kd_plot <- predict(x, data, xy = xy) %>%
-      (ggplot2::ggplot)() +
-      ggplot2::geom_tile(ggplot2::aes(x = x, y = y, fill = prediction)) +
+    pred <- x$data$shapes[, layer]
+  }
+
+  if(inherits(pred, "SpatRaster")){
+    pred %>%
+      as.data.frame(xy = TRUE) %>%
+      ggplot2::ggplot() +
+      ggplot2::geom_tile(ggplot2::aes_string(x = "x", y = "y", fill = names(pred))) +
       ggplot2::coord_equal() +
       ggplot2::scale_fill_distiller(palette = "YlOrRd", direction = 1, na.value = NA) +
-      ggplot2::theme_bw() +
-      gglayers
+      ggplot2::theme_bw()
+  } else if(inherits(pred, "SpatVector")){
+    pred %>%
+      sf::st_as_sf() %>%
+      ggplot2::ggplot() +
+      ggplot2::geom_sf(ggplot2::aes_string(fill = layer)) +
+      ggplot2::scale_fill_distiller(palette = "YlOrRd", direction = 1, na.value = NA) +
+      ggplot2::theme_bw()
+  } else {
+    plot(pred)
   }
-  class(kd_plot) <- c("kd_plot", class(kd_plot))
-  return(kd_plot)
+}
+
+#' Plot a kd-model
+#'
+#' @param x a kd_model object
+#' @param layers which layer to plot. One of either "output_disag", "output_agg", "output_xy", "output_rate", or any column from the "shapes" SpatVector
+#' @param data a kd_Data object, default to data from x
+#' @param ... additional parameters to pass to predict
+#'
+#' @export
+plot.kd_model <- function(x, layers = "output_disag", data = x$data, ...){
+  plot(predict(x, data, ...), layers)
 }
 
 #' Plot the history of a kd_cv object

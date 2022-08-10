@@ -11,7 +11,7 @@ build_model <- function(...) {
 #'
 #' @param data kd_data
 #' @param layers_cov list of layers for covariate training. If NULL, pass through with no additional layers.
-#' @param layers_xy list of layers for xy training, otherwise if TRUE, pass through with no additional layers. If NULL, do not include xy layers. Default NULL
+#' @param layers_xy list of layers for xy training, otherwise if TRUE, pass through with no additional layers. If NULL, do not include xy layers. Default NULL. If NULL, output_xy will be the same as output_disag
 #' @param inverse_link_function inverse link function, defaults to exponential
 #' @param optimizer keras optimizer
 #' @param loss keras loss, if included model will compile
@@ -152,17 +152,17 @@ build_model.kd_data <- function(data,
                                          inv_agg_pop),
                                        name = "output_rate")
 
-  output_disagg <- keras::layer_concatenate(c(link_layer,
+  output_disag <- keras::layer_concatenate(c(link_layer,
                                               input_xy),
                                             axis = -1,
-                                            name = "output_disagg")
+                                            name = "output_disag")
   if(!is.null(layers_xy)){
     output_xy <- keras::layer_concatenate(c(training_layers_xy,
                                             input_xy),
                                           axis = -1,
                                           name = "output_xy")
   } else {
-    output_xy <- output_disagg
+    output_xy <- output_disag
   }
 
   train_model <- keras:: keras_model(
@@ -188,7 +188,7 @@ build_model.kd_data <- function(data,
                input_pop,
                input_xy,
                input_xy_norm),
-    output = c(output_disagg,
+    output = c(output_disag,
                output_agg,
                output_xy,
                output_rate),

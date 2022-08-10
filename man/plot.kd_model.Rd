@@ -2,36 +2,19 @@
 % Please edit documentation in R/plot.r
 \name{plot.kd_model}
 \alias{plot.kd_model}
-\title{plot}
+\title{Plot a kd-model}
 \usage{
-\method{plot}{kd_model}(
-  x,
-  data = x$data,
-  gglayers = NULL,
-  reagg = FALSE,
-  xy = FALSE,
-  compare = FALSE,
-  ...
-)
+\method{plot}{kd_model}(x, layers = "output_disag", data = x$data, ...)
 }
 \arguments{
-\item{x}{kd_model}
+\item{x}{a kd_model object}
 
-\item{data}{kd_data, defaults to data from kd_model}
+\item{layers}{which layer to plot. One of either "output_disag", "output_agg", "output_xy", "output_rate", or any column from the "shapes" SpatVector}
 
-\item{gglayers}{list of layers to add to ggplot}
+\item{data}{a kd_Data object, default to data from x}
 
-\item{reagg}{reaggregate output}
-
-\item{xy}{plot field, only valid if layers_xy included otherwise returns prediction}
-
-\item{compare}{compare to actual data, only works tfor reagg = TRUE}
-
-\item{...}{for plot generic}
-}
-\value{
-a kd_plot object
+\item{...}{additional parameters to pass to predict}
 }
 \description{
-plot
+Plot a kd-model
 }
