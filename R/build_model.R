@@ -197,6 +197,8 @@ build_model.kd_data <- function(data,
 
   kd_model <- list(train_model = train_model,
                    predict_model = predict_model,
+                   layers_cov = layers_cov,
+                   layers_xy = layers_xy,
                    data = data,
                    call = match.call())
   class(kd_model) <- c("kd_model", "list")

@@ -62,7 +62,37 @@ predict.kd_model <- function(object, data = object$data, as.data.frame = FALSE, 
 
     rtn <- c(pred,
              data = list(data))
-    class(rtn) <- c("kd_predict", class(rtn))
+    class(rtn) <- c("kd_predict", "kd_predict_df", class(rtn))
   }
   return(rtn)
+}
+
+#' Predict a kedis model with new data
+#'
+#' @param object a kd_new_data object, created by the new_data_for_predict function in kedis
+#' @param as.data.frame If FALSE, returns as SpatRasters. If TRUE, returns as data.frame
+#' @param ... additional parameters for predict
+#'
+#' @export
+predict.kd_new_data <- function(object, as.data.frame = FALSE, ...){
+  pred <- predict(object$model$predict_model, object$inputs)[[1]]
+
+  pred <- pred %>%
+    matrix(ncol = 3) %>%
+    .[which(.[,2] != 0 & .[,3] != 0), c(2, 3, 1)]
+
+  if(as.data.frame){
+    pred %<>%
+      terra::as.data.frame(xy = TRUE) %>%
+      setNames(c("x", "y", "output_disag"))
+    class(pred) <- c("kd_new_data_predict_df", class(pred))
+  } else {
+    pred <- terra::rasterize(pred[,c(1, 2)],
+                             covariates,
+                             values = pred[,3]) %>%
+      setNames("output_disag")
+    pred <- list(pred)
+    class(pred) <- c("kd_new_data_predict", "kd_new_data_predict_df", class(pred))
+  }
+  return(pred)
 }

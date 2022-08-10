@@ -50,6 +50,43 @@ plot.kd_model <- function(x, layers = "output_disag", data = x$data, ...){
   plot(predict(x, data, ...), layers)
 }
 
+#' Predict then plot a kedis model with new data
+#'
+#' @param x a kd_new_data object, from new_data_for_predict function
+#' @param ... additional parameters passed to predict
+#'
+#' @export
+plot.kd_new_data <- function(x, ...){
+  plot(predict(x, as.data.frame = TRUE, ...))
+}
+
+#' Plot a kedis model with new data
+#'
+#' @param x a kd_new_data_predict object
+#' @param ... additional parameters
+#'
+#' @export
+plot.kd_new_data_predict <- function(x, ...){
+  x <- x[[1]] %>%
+  terra::as.data.frame(xy = TRUE)
+  NextMethod()
+}
+
+#' Plot a kedis model with new data
+#'
+#' @param x a kd_new_data_predict_df object
+#' @param ... additional parameters
+#'
+#' @export
+plot.kd_new_data_predict_df <- function(x, ...){
+  x %>%
+    ggplot2::ggplot() +
+    ggplot2::geom_tile(ggplot2::aes(x = x, y = y, fill = output_disag)) +
+    ggplot2::coord_equal() +
+    ggplot2::scale_fill_distiller(palette = "YlOrRd", direction = 1, na.value = NA) +
+    ggplot2::theme_bw()
+}
+
 #' Plot the history of a kd_cv object
 #'
 #' @param x a kd_cv object
