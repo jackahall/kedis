@@ -4,16 +4,14 @@
 \alias{loss.kd_model}
 \title{loss}
 \usage{
-\method{loss}{kd_model}(model, data = model$data, full = FALSE, min = TRUE, ...)
+\method{loss}{kd_model}(model, data = model$data, loss = "poisson", ...)
 }
 \arguments{
 \item{model}{a kd_model object}
 
 \item{data}{a kd_data object, defaults to data from model}
 
-\item{full}{return the full dataframe, default FALSE}
-
-\item{min}{include the minimum (optimum) loss}
+\item{loss}{the loss function to apply. either a string "poisson" (default) which is the poisson loss, or any function which takes actual and predicted as parameters}
 
 \item{...}{additional parameters}
 }

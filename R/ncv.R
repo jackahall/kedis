@@ -42,9 +42,8 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                                                                         patience = 50,
                                                                         restore_best_weights = TRUE)),
                         validation_set = data_validate)
+
     kd_loss <- loss(kd_model, data_validate)
-
-
 
     rtn <- list(layers_cov = kd_model$layers_cov,
                 history = kd_history,
@@ -130,7 +129,7 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
       average_loss <- loss_archive %>%
         dplyr::filter(out_loop == !!out_loop & hyper_idx == !!hyper_idx) %>%
         dplyr::group_by(hyper_idx) %>%
-        dplyr::summarize("Mean_Difference" = mean(Difference)) %>%
+        dplyr::summarize("Mean_Difference" = mean(difference)) %>%
         dplyr::select(Mean_Difference) %>%
         as.numeric
 
@@ -141,7 +140,7 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
     best_hyper_set <- loss_archive %>%
       dplyr::filter(out_loop == !!out_loop) %>%
       dplyr::group_by(hyper_idx) %>%
-      dplyr::summarize("Mean_Difference" = mean(Difference)) %>%
+      dplyr::summarize("Mean_Difference" = mean(difference)) %>%
       dplyr::summarize("Min_Mean_Difference_Location" = hyper_idx[which.min(Mean_Difference)]) %>%
       as.numeric
 
@@ -177,7 +176,7 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
 
   test_loss <- loss_archive %>%
     dplyr::filter(set == "test") %>%
-    dplyr::summarize(test_loss = mean(Difference)) %>%
+    dplyr::summarize(test_loss = mean(difference)) %>%
     as.numeric()
 
   cat(crayon::red("\n\nAverage loss difference of test sets:"), round(test_loss, 2))
