@@ -40,6 +40,6 @@ summary.kd_cv <- function(object, ...){
 
   cat("\nMean Loss Difference: ")
   cat(lossdf %>%
-          dplyr::summarize(mean = mean(Difference)) %>%
+          dplyr::summarize(mean = mean(difference)) %>%
             dplyr::pull(mean))
 }

@@ -30,14 +30,14 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
                             layers_cov,
                             optimizer = keras::optimizer_rmsprop(),
                             loss = keras::loss_poisson(),
-                            metrics = "poisson",
+                            link = "log",
                             seed = seed)
 
     kd_history <- train(kd_model,
-                        data_train,
+                        sub_data$train$test,
                         epochs = 10000,
                         verbose = 0,
-                        callbacks = list(keras::callback_early_stopping(monitor = "poisson",
+                        callbacks = list(keras::callback_early_stopping(monitor = "loss",
                                                                         min_delta = 0.001,
                                                                         patience = 50,
                                                                         restore_best_weights = TRUE)),
@@ -82,7 +82,6 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
 
   loss_archive <- data.frame()
   overview <- list()
-
 
   for(out_loop in out_seq){
     cat(crayon::red("\n\nOuter Loop", out_loop))
