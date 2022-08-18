@@ -41,7 +41,7 @@ cv.kd_model <- function(object, data = object$data, k = NA, idx = NULL, seed = N
   for(i in seq_len(k)){
     cat("\nFold", i)
     sub_data[[i]] <- get_subset(data, idx, i)
-    history[[i]] <- train(model,
+    history[[i]] <- train(object,
                           sub_data[[i]]$train,
                           validation_data = sub_data[[i]]$test,
                           ...)
