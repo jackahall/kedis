@@ -21,10 +21,12 @@ get_subset <- function(data, idx, n_out, ...){
 #'
 #' @return a kd_ncv_data object, which is a list of kd_data objects
 #' @export
-get_subset.kd_ncv_index <- function(data, idx, n_out, n_in, ...){
-  rtn <- get_subset.kd_cv_index(data, idx$outer, n_out)
-  rtn$train <- get_subset.kd_cv_index(rtn$train, idx$inner[[n_out]], n_in)
-  class(rtn) <- c("kd_ncv_data", "list")
+get_subset.kd_ncv_index <- function(data, idx, n_out, n_in = NULL, ...){
+  rtn <- get_subset(data, idx$outer, n_out)
+  if(!is.null(n_in)){
+    rtn$train <- get_subset(rtn$train, idx$inner[[n_out]], n_in)
+    class(rtn) <- c("kd_ncv_data", "list")
+  }
   rtn
 }
 

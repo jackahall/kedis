@@ -4,7 +4,7 @@
 \alias{get_subset.kd_ncv_index}
 \title{Get subset of kd_data with kd_ncv_index}
 \usage{
-\method{get_subset}{kd_ncv_index}(data, idx, n_out, n_in, ...)
+\method{get_subset}{kd_ncv_index}(data, idx, n_out, n_in = NULL, ...)
 }
 \arguments{
 \item{data}{a kd_data object}

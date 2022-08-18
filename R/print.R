@@ -27,3 +27,13 @@ print.kd_data <- function(x, ...){
 print.kd_cv <- function(x, ...){
   summary(x)
 }
+
+#' Print kd_ncv
+#'
+#' @param x a kd_ncv object
+#' @param ... additional parameters
+#'
+#' @export
+print.kd_ncv <- function(x, ...){
+  summary(x)
+}

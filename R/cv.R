@@ -15,11 +15,12 @@ cv <- function(object, ...){
 #' @param k k, must include if idx is NULL
 #' @param idx a kd_cv_index object, must include if k is NA
 #' @param seed seed
+#' @param loss the loss function, passed to kedis::loss
 #' @param ... additional parameters passed to kedis::train
 #'
 #' @return a kd_cv object
 #' @export
-cv.kd_model <- function(object, k = NA, idx = NULL, seed = NULL, ...){
+cv.kd_model <- function(object, data = object$data, k = NA, idx = NULL, seed = NULL, loss = "poisson", ...){
   stopifnot(inherits(object, "kd_model"))
   if(!is.null(seed)){
     stopifnot(inherits(seed, "numeric"))
@@ -28,33 +29,31 @@ cv.kd_model <- function(object, k = NA, idx = NULL, seed = NULL, ...){
   if(is.null(idx)){
     stopifnot(!is.na(k))
     stopifnot(inherits(k, "numeric"))
-    idx <- make_index(object$data, k, seed = seed)
+    idx <- make_index(data, k, seed = seed)
   } else {
     stopifnot(inherits(idx, "kd_cv_index"))
     k <- max(idx)
   }
+  init_weights <- keras::get_weights(object$predict_model)
   history <- list()
-  prediction <- list()
   sub_data <- list()
-  model <- list()
-  loss <- list()
+  loss_history <- list()
   for(i in seq_len(k)){
-    sub_data[[i]] <- get_subset(object$data, idx, i)
-    model[[i]] <- clone_model(object)
-    history[[i]] <- train(model[[i]],
+    cat("\nFold", i)
+    sub_data[[i]] <- get_subset(data, idx, i)
+    history[[i]] <- train(model,
                           sub_data[[i]]$train,
                           validation_data = sub_data[[i]]$test,
                           ...)
-    prediction[[i]] <- predict(model[[i]]$predict_model, sub_data[[i]]$test$inputs)
-    loss[[i]] <- loss(model[[i]], sub_data[[i]]$test)
+    loss_history[[i]] <- loss(object, sub_data[[i]]$test, loss)
+    cat("\tValidation Loss:", loss_history[[i]]$difference, "\tElapsed Time:", history[[i]]$exec_time["elapsed"])
+    keras::set_weights(object$predict_model, init_weights)
   }
-  rtn <- list(prediction = prediction,
-              history = history,
+
+  rtn <- list(history = history,
               idx = idx,
               k = k,
-              sub_data = sub_data,
-              loss = loss,
-              models = model,
+              loss = cbind(k = seq_len(k), do.call(rbind, loss_history)),
               call = match.call())
   class(rtn) <- c("kd_cv", class(rtn))
   rtn

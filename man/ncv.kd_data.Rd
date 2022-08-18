@@ -2,7 +2,7 @@
 % Please edit documentation in R/ncv.R
 \name{ncv.kd_data}
 \alias{ncv.kd_data}
-\title{Nested Cross Validation for Kedis}
+\title{DEPRECIATED Nested Cross Validation for Kedis}
 \usage{
 \method{ncv}{kd_data}(
   data,
@@ -36,5 +36,5 @@
 a data.frame and a kd_ncv_index object
 }
 \description{
-Nested Cross Validation for Kedis
+DEPRECIATED Nested Cross Validation for Kedis
 }

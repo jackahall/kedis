@@ -34,12 +34,26 @@ summary.kd_cv <- function(object, ...){
   cat("\nk =", object$k, "\n")
 
   cat("\nLosses per fold:\n")
-  lossdf <- do.call(rbind, object$loss) %>%
-    as.data.frame()
-  print(lossdf)
+  print(object$loss, row.names = FALSE)
 
   cat("\nMean Loss Difference: ")
-  cat(lossdf %>%
+  cat(object$loss %>%
           dplyr::summarize(mean = mean(difference)) %>%
             dplyr::pull(mean))
+}
+
+#' Summarise kd_ncv
+#'
+#' @param object a kd_ncv object
+#' @param ... additional parameters
+#
+#' @export
+print.kd_ncv <- function(object, ...){
+  cat("\nNested Cross-Validation of Kedis Models")
+
+  cat("\n\nOuter Folds:", object$n_out_loop,
+      "\tInner Folds:", object$n_in_loop)
+  cat("\nHyperparameter sets tested", length(object$hypers))
+
+  cat("\n\nMean loss of outer loops:", mean(object$outer_losses$difference))
 }

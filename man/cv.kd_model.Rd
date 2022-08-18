@@ -4,7 +4,15 @@
 \alias{cv.kd_model}
 \title{Cross-Validation of a kd_model object}
 \usage{
-\method{cv}{kd_model}(object, k = NA, idx = NULL, seed = NULL, ...)
+\method{cv}{kd_model}(
+  object,
+  data = object$data,
+  k = NA,
+  idx = NULL,
+  seed = NULL,
+  loss = "poisson",
+  ...
+)
 }
 \arguments{
 \item{object}{a kd_model object}
@@ -14,6 +22,8 @@
 \item{idx}{a kd_cv_index object, must include if k is NA}
 
 \item{seed}{seed}
+
+\item{loss}{the loss function, passed to kedis::loss}
 
 \item{...}{additional parameters passed to kedis::train}
 }
