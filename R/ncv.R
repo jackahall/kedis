@@ -236,7 +236,7 @@ ncv.kd_model <- function(model, data = model$data, n_out_loop, n_in_loop,
       cat("\nHyper Idx:", hyper_idx)
       cv_history[[out_loop]][[hyper_idx]] <- cv(models[[hyper_idx]],
                                                 data = sub_data[[out_loop]]$train,
-                                                idx = idx$inner[[out_loop]])
+                                                idx = idx$inner[[out_loop]], ...)
     }
   }
 

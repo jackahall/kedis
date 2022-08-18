@@ -31,7 +31,7 @@
 
 \item{seed}{random seed}
 
-\item{file_path}{file path to save csv file. if not supplied file will not be saved}
+\item{file_path}{file path to save csv file. if NULL file will not be saved}
 
 \item{...}{additional parameters to pass to train}
 }
