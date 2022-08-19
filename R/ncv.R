@@ -208,12 +208,13 @@ ncv.kd_data <- function(data, n_out_loop, n_in_loop, hypers, seed, csv_folder = 
 #' @param loss loss to calculate, passed to kedis::loss
 #' @param seed random seed
 #' @param file_path file path to save csv file. if NULL file will not be saved
+#' @param silent omit all output
 #' @param ... additional parameters to pass to train
 #'
 #' @export
 ncv.kd_model <- function(model, data = model$data, n_out_loop, n_in_loop,
                          hypers, loss = "poisson", seed = NULL,
-                         file_path = NULL, ...){
+                         file_path = NULL, silent = FALSE, ...){
 
   models <- lapply(hypers, function(x){
     do.call(build_model, append(as.list(model$call)[-1], x))
@@ -229,14 +230,15 @@ ncv.kd_model <- function(model, data = model$data, n_out_loop, n_in_loop,
   for(out_loop in seq_len(n_out_loop)){
 
     cv_history[[out_loop]] <- list()
-    cat("\nOuter Loop:", out_loop)
+    if(!silent) cat("\nOuter Loop:", out_loop)
     sub_data[[out_loop]] <- get_subset(data, idx, out_loop)
 
     for(hyper_idx in seq_along(hypers)){
-      cat("\nHyper Idx:", hyper_idx)
+      if(!silent) cat("\nHyper Idx:", hyper_idx)
       cv_history[[out_loop]][[hyper_idx]] <- cv(models[[hyper_idx]],
                                                 data = sub_data[[out_loop]]$train,
-                                                idx = idx$inner[[out_loop]], ...)
+                                                idx = idx$inner[[out_loop]],
+                                                silent, ...)
     }
   }
 
@@ -282,7 +284,7 @@ ncv.kd_model <- function(model, data = model$data, n_out_loop, n_in_loop,
   outer_losses <- list()
 
   for(out_loop in seq_len(n_out_loop)){
-    cat("\nFitting outer model", out_loop)
+    if(!silent) cat("\nFitting outer model", out_loop)
     outer_models[[out_loop]] <- clone_model(models[[best_hyper_sets[out_loop]]])
     outer_history[[out_loop]] <- train(outer_models[[out_loop]],
                                        data = sub_data[[out_loop]]$train,
@@ -293,10 +295,12 @@ ncv.kd_model <- function(model, data = model$data, n_out_loop, n_in_loop,
                                       loss(outer_models[[out_loop]],
                                            sub_data[[out_loop]]$test,
                                            loss))
-    cat("\n\tValidation Loss",
+    if(!silent) {
+      cat("\n\tValidation Loss",
         outer_losses[[out_loop]]$difference,
         "\tElapsed Time:",
         outer_history[[out_loop]]$exec_time["elapsed"])
+    }
   }
 
   if(!is.null(file_path)){
@@ -304,7 +308,7 @@ ncv.kd_model <- function(model, data = model$data, n_out_loop, n_in_loop,
       dir.create(file_path, recursive = TRUE)
     }
     filename_suff <- paste0(format(Sys.time(), "%y%m%d-%H%M%S"),".csv")
-    cat("\n\nWriting .csv files")
+    if(!silent) cat("\n\nWriting .csv files")
     write.csv(inner_losses,
               file.path(file_path,
                         paste0("inner_losses-ncv-", filename)),

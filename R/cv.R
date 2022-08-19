@@ -16,11 +16,13 @@ cv <- function(object, ...){
 #' @param idx a kd_cv_index object, must include if k is NA
 #' @param seed seed
 #' @param loss the loss function, passed to kedis::loss
+#' @param silent omit all output
 #' @param ... additional parameters passed to kedis::train
 #'
 #' @return a kd_cv object
 #' @export
-cv.kd_model <- function(object, data = object$data, k = NA, idx = NULL, seed = NULL, loss = "poisson", ...){
+cv.kd_model <- function(object, data = object$data, k = NA, idx = NULL,
+                        seed = NULL, loss = "poisson", silent = FALSE, ...){
   stopifnot(inherits(object, "kd_model"))
   if(!is.null(seed)){
     stopifnot(inherits(seed, "numeric"))
@@ -39,14 +41,14 @@ cv.kd_model <- function(object, data = object$data, k = NA, idx = NULL, seed = N
   sub_data <- list()
   loss_history <- list()
   for(i in seq_len(k)){
-    cat("\nFold", i)
+    if(!silent) cat("\nFold", i)
     sub_data[[i]] <- get_subset(data, idx, i)
     history[[i]] <- train(object,
                           sub_data[[i]]$train,
                           validation_data = sub_data[[i]]$test,
                           ...)
     loss_history[[i]] <- loss(object, sub_data[[i]]$test, loss)
-    cat("\tValidation Loss:", loss_history[[i]]$difference, "\tElapsed Time:", history[[i]]$exec_time["elapsed"])
+    if(!silent) cat("\tValidation Loss:", loss_history[[i]]$difference, "\tElapsed Time:", history[[i]]$exec_time["elapsed"])
     keras::set_weights(object$predict_model, init_weights)
   }
 

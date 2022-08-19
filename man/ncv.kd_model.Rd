@@ -13,6 +13,7 @@
   loss = "poisson",
   seed = NULL,
   file_path = NULL,
+  silent = FALSE,
   ...
 )
 }
@@ -32,6 +33,8 @@
 \item{seed}{random seed}
 
 \item{file_path}{file path to save csv file. if NULL file will not be saved}
+
+\item{silent}{omit all output}
 
 \item{...}{additional parameters to pass to train}
 }

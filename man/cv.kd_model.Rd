@@ -11,6 +11,7 @@
   idx = NULL,
   seed = NULL,
   loss = "poisson",
+  silent = FALSE,
   ...
 )
 }
@@ -24,6 +25,8 @@
 \item{seed}{seed}
 
 \item{loss}{the loss function, passed to kedis::loss}
+
+\item{silent}{omit all output}
 
 \item{...}{additional parameters passed to kedis::train}
 }
