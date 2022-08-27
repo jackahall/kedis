@@ -313,7 +313,7 @@ ncv.kd_model <- function(model, data = model$data, n_out_loop, n_in_loop,
               file.path(file_path,
                         paste0("inner_losses-ncv-", filename_suff)),
               row.names = TRUE)
-    write.csv(inner_losses,
+    write.csv(outer_losses,
               file.path(file_path,
                         paste0("outer_losses-ncv-", filename_suff)),
               row.names = TRUE)
