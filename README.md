@@ -22,8 +22,8 @@ Prepare data. `shapes`, `covariates` and `population` can either be paths to .sh
 data <- prepare_data(shapes = "data/shapes.shp",
                      covariates = "data/covariates.tif",
                      population = "data/population.tif",
-                     id_var = "id_var",
-                     filter_var = "filter_var")
+                     filter_var = "filter_var",
+                     response_var = "response_var")
 ```
 
 Build a kedis model. Log link because this data has a poisson distribution. Parameters are the same as for `keras::fit`. Layers are included as lists.
