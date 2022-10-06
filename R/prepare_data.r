@@ -88,6 +88,7 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
 
   cov_names <- cov_names_norm
 
+  ID <- NULL
   full_df <- dplyr::left_join(
     terra::extract(stack, shapes, xy = TRUE),
     shapes %>%
@@ -96,11 +97,11 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
     by = "ID") %>%
     dplyr::mutate(dplyr::across(c("x", "y"), ~scale(.x), .names = "{.col}_norm")) %>%
     dplyr::select(dplyr::all_of(filter_var),
-                  ID,
-                  x,
-                  y,
-                  x_norm,
-                  y_norm,
+                  .data$ID,
+                  .data$x,
+                  .data$y,
+                  .data$x_norm,
+                  .data$y_norm,
                   dplyr::all_of(response_var),
                   dplyr::all_of(cov_names),
                   population) %>%
@@ -108,13 +109,13 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
 
   startendindex <- lapply(unique(full_df[, "ID"]),
                           function(x) range(which(full_df[, "ID"] == x))) %>%
-    do.call(rbind, .)
+    do.call(rbind, .data$.)
   startendindex <- startendindex[, ] - 1L
 
 
   length <- full_df %>%
-    dplyr::select(dplyr::all_of(cov_names), ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(dplyr::all_of(cov_names), .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     sapply(nrow) %>%
     max
 
@@ -123,40 +124,40 @@ prepare_data <- function(shapes, covariates, population = NULL, filter_var,
   }
 
   data_cov <- full_df %>%
-    dplyr::select(dplyr::all_of(cov_names), ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(dplyr::all_of(cov_names), .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_pop <- full_df %>%
-    dplyr::select(population, ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(population, .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_xy <- full_df %>%
-    dplyr::select(x, y, ID) %>%
+    dplyr::select(.data$x, .data$y, .data$ID) %>%
     dplyr::group_split(ID, .keep = FALSE) %>%
     lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   data_xy_norm <- full_df %>%
-    dplyr::select(x_norm, y_norm, ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(.data$x_norm, .data$y_norm, .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     lapply(pad_zeros, length_pad) %>%
     simplify2array %>%
     aperm(c(3, 1, 2))
 
   response <- full_df %>%
-    dplyr::group_split(ID) %>%
+    dplyr::group_split(.data$ID) %>%
     lapply(function(x){x[1, c("ID", dplyr::all_of(c(filter_var, response_var)))]}) %>%
-    do.call(rbind, .) %>%
+    do.call(rbind, .data$.) %>%
     stats::setNames(c("ID", "filter_var", "response_var")) %>%
     dplyr::left_join(terra::extract(stack, shapes, fun = sum) %>%
-                       dplyr::select(ID, population)) %>%
+                       dplyr::select(.data$ID, population)) %>%
     dplyr::mutate(rate = response_var / population) %>%
     suppressMessages()
 

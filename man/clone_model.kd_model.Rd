@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{model}{a kd_model object}
+
+\item{...}{additional parameters}
 }
 \description{
 Clone a kd_model instance

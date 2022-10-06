@@ -12,6 +12,8 @@
 \item{input_tensors}{input_tensors}
 
 \item{clone_function}{clone_function}
+
+\item{...}{additional parameters}
 }
 \description{
 Default clone a model instance.

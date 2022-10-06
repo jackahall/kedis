@@ -36,26 +36,26 @@ new_data_for_predict <- function(model, covariates, population){
     dplyr::mutate(dplyr::across(c("x", "y"), ~scale(.x), .names = "{.col}_norm"))
 
   data_cov <- full_df %>%
-    dplyr::select(dplyr::all_of(names(covariates)), ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(dplyr::all_of(names(covariates)), .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     sapply(as.matrix, simplify = "array") %>%
     aperm(c(3, 1, 2))
 
   data_pop <- full_df %>%
-    dplyr::select(population, ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(population, .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     sapply(as.matrix, simplify = "array") %>%
     aperm(c(3, 1, 2))
 
   data_xy <- full_df %>%
-    dplyr::select(x, y, ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(.data$x, .data$y, .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     sapply(as.matrix, simplify = "array") %>%
     aperm(c(3, 1, 2))
 
   data_xy_norm <- full_df %>%
-    dplyr::select(x_norm, y_norm, ID) %>%
-    dplyr::group_split(ID, .keep = FALSE) %>%
+    dplyr::select(.data$x_norm, .data$y_norm, .data$ID) %>%
+    dplyr::group_split(.data$ID, .keep = FALSE) %>%
     sapply(as.matrix, simplify = "array") %>%
     aperm(c(3, 1, 2))
 

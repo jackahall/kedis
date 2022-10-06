@@ -18,6 +18,7 @@ cv <- function(object, ...){
 #' @param loss the loss function, passed to kedis::loss
 #' @param silent omit all output
 #' @param ... additional parameters passed to kedis::train
+#' @param data data. default data from object. must be a kd_data object.
 #'
 #' @return a kd_cv object
 #' @export

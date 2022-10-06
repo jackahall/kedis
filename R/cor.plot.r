@@ -22,7 +22,7 @@ cor.plot.kd_model <- function(x, identity_line = TRUE, ...){
                 actual = x$data$response$rate) %>%
     as.data.frame %>%
     ggplot2::ggplot() +
-    ggplot2::geom_point(ggplot2::aes(x = actual, y = prediction), ...)
+    ggplot2::geom_point(ggplot2::aes(x = .data$actual, y = .data$prediction), ...)
   if(identity_line){
     plot <- plot +
       ggplot2::geom_function(fun = function(x) x)
@@ -53,7 +53,7 @@ cor.plot.kd_model_htest <- function(x, ...){
 cor.plot.kd_cv <- function(x, identity_line = TRUE, ...){
   plot <- join_cv_predictions(x, ...) %>%
     ggplot2::ggplot() +
-    ggplot2::geom_point(ggplot2::aes(x = actual, y  = predicted))
+    ggplot2::geom_point(ggplot2::aes(x = .data$actual, y  = .data$predicted))
   if(identity_line){
     plot <- plot +
       ggplot2::geom_function(fun = function(x) x)

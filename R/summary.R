@@ -38,7 +38,7 @@ summary.kd_cv <- function(object, ...){
 
   cat("\nMean Loss Difference: ")
   cat(object$loss %>%
-          dplyr::summarize(mean = mean(difference)) %>%
+          dplyr::summarize(mean = mean(.data$difference)) %>%
             dplyr::pull(mean))
 }
 
@@ -48,7 +48,7 @@ summary.kd_cv <- function(object, ...){
 #' @param ... additional parameters
 #
 #' @export
-print.kd_ncv <- function(object, ...){
+summary.kd_ncv <- function(object, ...){
   cat("\nNested Cross-Validation of Kedis Models")
 
   cat("\n\nOuter Folds:", object$n_out_loop,

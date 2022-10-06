@@ -4,10 +4,10 @@
 \alias{ncv}
 \title{Nested cross Validation}
 \usage{
-ncv(data, ...)
+ncv(model, ...)
 }
 \arguments{
-\item{data}{data}
+\item{model}{the model}
 
 \item{...}{additional parameters}
 }

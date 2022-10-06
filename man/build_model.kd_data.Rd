@@ -24,6 +24,8 @@
 
 \item{layers_xy}{list of layers for xy training, otherwise if TRUE, pass through with no additional layers. If NULL, do not include xy layers. Default NULL. If NULL, output_xy will be the same as output_disag}
 
+\item{link}{link function to be used. default "identity", can be one of "logit", "probit", "cauchit", "cloglog", "identity", "log", "sqrt", "1/mu^2", "inverse".}
+
 \item{optimizer}{keras optimizer}
 
 \item{loss}{keras loss, if included model will compile}
@@ -35,8 +37,6 @@
 \item{seed}{seed, default NULL}
 
 \item{clear_session}{default TRUE, clears keras session before running}
-
-\item{inverse_link_function}{inverse link function, defaults to exponential}
 }
 \value{
 a kd_model object

@@ -12,6 +12,8 @@ clone_model(model, input_tensors = NULL, clone_function = NULL, ...)
 \item{input_tensors}{input_tensors}
 
 \item{clone_function}{clone_function}
+
+\item{...}{additional parameters}
 }
 \description{
 Generic clone a model instance.

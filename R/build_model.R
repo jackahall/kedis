@@ -12,13 +12,13 @@ build_model <- function(...) {
 #' @param data kd_data
 #' @param layers_cov list of layers for covariate training. If NULL, pass through with no additional layers.
 #' @param layers_xy list of layers for xy training, otherwise if TRUE, pass through with no additional layers. If NULL, do not include xy layers. Default NULL. If NULL, output_xy will be the same as output_disag
-#' @param inverse_link_function inverse link function, defaults to exponential
 #' @param optimizer keras optimizer
 #' @param loss keras loss, if included model will compile
 #' @param metrics keras metrics
 #' @param ... other parameters to pass to keras::compile
 #' @param seed seed, default NULL
 #' @param clear_session default TRUE, clears keras session before running
+#' @param link link function to be used. default "identity", can be one of "logit", "probit", "cauchit", "cloglog", "identity", "log", "sqrt", "1/mu^2", "inverse".
 #'
 #' @return a kd_model object
 #' @export
@@ -87,7 +87,7 @@ build_model.kd_data <- function(data,
 
   if(link == "logit"){
     linkinv <- function(eta){
-      .Call(C_logit_linkinv, eta)
+      log(eta / (1 - eta))
     }
   } else if(link == "probit"){
     linkinv <- function(eta){

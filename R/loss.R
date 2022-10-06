@@ -32,6 +32,7 @@ loss.kd_model <- function(model, data = model$data, loss = "poisson", ...){
 
   response <- compare_response(model, data)
 
+  optim <- NULL
   data.frame(loss = loss_fn(response$actual, response$predicted),
              optim = loss_fn(response$actual, response$actual)) %>%
     dplyr::mutate(difference = loss - optim)

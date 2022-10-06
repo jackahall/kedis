@@ -81,7 +81,7 @@ plot.kd_new_data_predict <- function(x, ...){
 plot.kd_new_data_predict_df <- function(x, ...){
   x %>%
     ggplot2::ggplot() +
-    ggplot2::geom_tile(ggplot2::aes(x = x, y = y, fill = output_disag)) +
+    ggplot2::geom_tile(ggplot2::aes(x = .data$x, y = .data$y, fill = .data$output_disag)) +
     ggplot2::coord_equal() +
     ggplot2::scale_fill_distiller(palette = "YlOrRd", direction = 1, na.value = NA) +
     ggplot2::theme_bw()

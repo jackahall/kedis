@@ -18,13 +18,14 @@ predict.kd_model <- function(object, data = object$data, as.data.frame = FALSE, 
 
   names(pred) <- c("output_disag", "output_agg", "output_xy", "output_rate")
 
+  . <- NULL
   pred[[1]] <- pred[[1]] %>%
     matrix(ncol = 3) %>%
-    .[which(.[,2] != 0 & .[,3] != 0), c(2, 3, 1)]
+    .[which(.data[,2] != 0 & .data[,3] != 0), c(2, 3, 1)]
 
   pred[[3]] <- pred[[3]] %>%
     matrix(ncol = 3) %>%
-    .[which(.[,2] != 0 & .[,3] != 0), c(2, 3, 1)]
+    .[which(.data[,2] != 0 & .data[,3] != 0), c(2, 3, 1)]
 
   pred$output_agg <- data$raw$shapes %>%
     sf::st_as_sf() %>%
@@ -37,22 +38,22 @@ predict.kd_model <- function(object, data = object$data, as.data.frame = FALSE, 
   if(as.data.frame){
     pred$output_disag %<>%
       terra::as.data.frame(xy = TRUE) %>%
-      setNames(c("x", "y", "output_disag"))
+      stats::setNames(c("x", "y", "output_disag"))
     pred$output_xy %<>%
       terra::as.data.frame(xy = TRUE) %>%
-      setNames(c("x", "y", "output_xy"))
+      stats::setNames(c("x", "y", "output_xy"))
     rtn <- c(pred, data = list(data))
     class(rtn) <- c("kd_predict_df", class(rtn))
   } else {
     pred$output_disag <- terra::rasterize(pred$output_disag[,c(1, 2)],
                                           data$raw$covariates,
                                           values = pred$output_disag[,3]) %>%
-      setNames("output_disag")
+      stats::setNames("output_disag")
 
     pred$output_xy <- terra::rasterize(pred$output_xy[,c(1, 2)],
                                        data$raw$covariates,
                                        values = pred$output_xy[,3]) %>%
-      setNames("output_xy")
+      stats::setNames("output_xy")
 
     pred$output_agg %<>%
       terra::vect()
@@ -77,20 +78,21 @@ predict.kd_model <- function(object, data = object$data, as.data.frame = FALSE, 
 predict.kd_new_data <- function(object, as.data.frame = FALSE, ...){
   pred <- predict(object$model$predict_model, object$inputs, verbose = 0, ...)[[1]]
 
+  . <- NULL
   pred <- pred %>%
     matrix(ncol = 3) %>%
-    .[which(.[,2] != 0 & .[,3] != 0), c(2, 3, 1)]
+    .[which(.data[,2] != 0 & .data[,3] != 0), c(2, 3, 1)]
 
   if(as.data.frame){
     pred %<>%
       terra::as.data.frame(xy = TRUE) %>%
-      setNames(c("x", "y", "output_disag"))
+      stats::setNames(c("x", "y", "output_disag"))
     class(pred) <- c("kd_new_data_predict_df", class(pred))
   } else {
     pred <- terra::rasterize(pred[,c(1, 2)],
-                             covariates,
+                             object$covariates,
                              values = pred[,3]) %>%
-      setNames("output_disag")
+      stats::setNames("output_disag")
     pred <- list(pred)
     class(pred) <- c("kd_new_data_predict", "kd_new_data_predict_df", class(pred))
   }

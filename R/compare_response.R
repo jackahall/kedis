@@ -6,5 +6,5 @@
 #' @export
 compare_response <- function(model, data = model$data){
   predict(model, data, as.data.frame = TRUE)$output_agg %>%
-    dplyr::select(actual = model$data$names$response_var, predicted = output_agg)
+    dplyr::select(actual = model$data$names$response_var, predicted = .data$output_agg)
 }

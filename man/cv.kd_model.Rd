@@ -18,6 +18,8 @@
 \arguments{
 \item{object}{a kd_model object}
 
+\item{data}{data. default data from object. must be a kd_data object.}
+
 \item{k}{k, must include if idx is NULL}
 
 \item{idx}{a kd_cv_index object, must include if k is NA}
