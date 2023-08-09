@@ -1,30 +1,17 @@
 Package: kedis
 Title: Disaggregation with Keras Neural Networks
-Version: 0.2.7
+Version: 0.3.0
 Authors@R: 
     person("Jack", "Hall", , "jackhall1996@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3016-7624"))
 Description: Performs disaggregation regression using neural networks with a
-    keras backend.
-License: MIT + file LICENSE
+    Keras backend.
+License: GPL (>= 3)
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+LazyData: true
+RoxygenNote: 7.2.3
 Imports: 
-    caret,
-    dplyr,
     generics,
-    ggplot2,
-    ggpubr,
-    magrittr,
-    Metrics,
     keras,
-    plyr,
-    rlang,
-    sf,
     stats,
-    tensorflow,
-    terra,
-    utils
-Depends: 
-    R (>= 2.10)
+    terra

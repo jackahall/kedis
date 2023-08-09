@@ -2,11 +2,11 @@
 % Please edit documentation in R/kedis-package.R
 \docType{package}
 \name{kedis-package}
-\alias{kedis}
 \alias{kedis-package}
+\alias{_PACKAGE}
 \title{kedis: Disaggregation with Keras Neural Networks}
 \description{
-Performs disaggregation regression using neural networks with a keras backend.
+Performs disaggregation regression using neural networks with a Keras backend.
 }
 \author{
 \strong{Maintainer}: Jack Hall \email{jackhall1996@gmail.com} (\href{https://orcid.org/0000-0002-3016-7624}{ORCID})
